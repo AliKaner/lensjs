@@ -59,6 +59,40 @@ const ChevronSVG = ({ isOpen }: { isOpen: boolean }) => (
   </svg>
 );
 
+interface CodeBlockProps {
+  title: string;
+  copyText: string;
+  children: React.ReactNode;
+}
+
+function CodeBlock({ title, copyText, children }: CodeBlockProps) {
+  const [copied, setCopied] = useState(false);
+
+  const onCopy = () => {
+    navigator.clipboard.writeText(copyText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="code-block-wrapper" style={{ marginTop: '16px' }}>
+      <div className="code-block-header">
+        <span>{title}</span>
+        <button className="copy-btn-small" onClick={onCopy}>
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
+      </div>
+      <div className="code-block-container">
+        <pre>
+          <code>
+            {children}
+          </code>
+        </pre>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('landing');
   const [sandboxEffect, setSandboxEffect] = useState<LensEffect>('zoom');
@@ -69,6 +103,7 @@ function App() {
   const [sandboxLensSize, setSandboxLensSize] = useState<number>(130);
   const [sandboxLensShape, setSandboxLensShape] = useState<'circle' | 'square'>('circle');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string>('intro');
 
   // States for landing page hero visual showcase
   const [heroEffect, setHeroEffect] = useState<LensEffect>('invert');
@@ -226,6 +261,62 @@ function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  useEffect(() => {
+    if (activeTab !== 'docs') return;
+
+    const sections = [
+      'intro',
+      'installation',
+      'usage',
+      'nextjs',
+      'use-cases',
+      'element-wrap',
+      'core-api',
+      'performance',
+      'props',
+      'lenses',
+      'color-filters',
+      'custom-css'
+    ];
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-15% 0px -70% 0px',
+      threshold: 0
+    };
+
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, observerOptions);
+
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.unobserve(el);
+      });
+    };
+  }, [activeTab]);
+
+  const handleSidebarClick = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    setActiveSection(id);
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   // ---------------------------------------------------------------
 
   const handleCopy = (text: string, id: string) => {
@@ -661,27 +752,27 @@ function App() {
             <aside className="docs-sidebar">
               <div className="sidebar-group">
                 <div className="sidebar-group-title">Getting Started</div>
-                <a href="#intro" className="sidebar-link active">Introduction</a>
-                <a href="#installation" className="sidebar-link">Installation</a>
-                <a href="#usage" className="sidebar-link">Basic Usage</a>
+                <a href="#intro" className={`sidebar-link ${activeSection === 'intro' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('intro', e)}>Introduction</a>
+                <a href="#installation" className={`sidebar-link ${activeSection === 'installation' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('installation', e)}>Installation</a>
+                <a href="#usage" className={`sidebar-link ${activeSection === 'usage' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('usage', e)}>Basic Usage</a>
               </div>
               <div className="sidebar-group">
                 <div className="sidebar-group-title">Frameworks</div>
-                <a href="#nextjs" className="sidebar-link">Next.js Integration</a>
+                <a href="#nextjs" className={`sidebar-link ${activeSection === 'nextjs' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('nextjs', e)}>Next.js Integration</a>
               </div>
               <div className="sidebar-group">
                 <div className="sidebar-group-title">Guides</div>
-                <a href="#use-cases" className="sidebar-link">Use Cases &amp; Recipes</a>
-                <a href="#element-wrap" className="sidebar-link">Wrapping Elements</a>
-                <a href="#core-api" className="sidebar-link">Core Pixel API</a>
-                <a href="#performance" className="sidebar-link">Performance &amp; A11y</a>
+                <a href="#use-cases" className={`sidebar-link ${activeSection === 'use-cases' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('use-cases', e)}>Use Cases &amp; Recipes</a>
+                <a href="#element-wrap" className={`sidebar-link ${activeSection === 'element-wrap' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('element-wrap', e)}>Wrapping Elements</a>
+                <a href="#core-api" className={`sidebar-link ${activeSection === 'core-api' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('core-api', e)}>Core Pixel API</a>
+                <a href="#performance" className={`sidebar-link ${activeSection === 'performance' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('performance', e)}>Performance &amp; A11y</a>
               </div>
               <div className="sidebar-group">
                 <div className="sidebar-group-title">API Reference</div>
-                <a href="#props" className="sidebar-link">Props Schema</a>
-                <a href="#lenses" className="sidebar-link">Lens Configuration</a>
-                <a href="#color-filters" className="sidebar-link">Color Filters</a>
-                <a href="#custom-css" className="sidebar-link">Custom CSS Variables</a>
+                <a href="#props" className={`sidebar-link ${activeSection === 'props' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('props', e)}>Props Schema</a>
+                <a href="#lenses" className={`sidebar-link ${activeSection === 'lenses' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('lenses', e)}>Lens Configuration</a>
+                <a href="#color-filters" className={`sidebar-link ${activeSection === 'color-filters' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('color-filters', e)}>Color Filters</a>
+                <a href="#custom-css" className={`sidebar-link ${activeSection === 'custom-css' ? 'active' : ''}`} onClick={(e) => handleSidebarClick('custom-css', e)}>Custom CSS Variables</a>
               </div>
             </aside>
 
@@ -706,15 +797,9 @@ function App() {
               <section id="installation">
                 <h2>Installation</h2>
                 <p>Install the library using your package manager of choice:</p>
-                <div className="code-block-header">
-                  <span>Terminal</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy('npm install @alikaner/lensjs', 'doc-install')}>
-                    {copiedId === 'doc-install' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre><code>npm install @alikaner/lensjs</code></pre>
-                </div>
+                <CodeBlock title="Terminal" copyText="npm install @alikaner/lensjs">
+                  npm install @alikaner/lensjs
+                </CodeBlock>
               </section>
 
               <hr className="docs-divider" />
@@ -722,29 +807,33 @@ function App() {
               <section id="usage">
                 <h2>Basic Usage</h2>
                 <p>Import the `LensImage` wrapper together with the effect stylesheet (once, anywhere in your app), then apply one of the effects:</p>
-                <div className="code-block-header">
-                  <span>React (JSX/TSX)</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nexport default function App() {\n  return (\n    <LensImage \n      src="/path/to/my-image.jpg" \n      alt="Spotlight Banner" \n      effect="glare" \n    />\n  );\n}`, 'doc-usage')}>
-                    {copiedId === 'doc-usage' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre>
-                    <code>
-                      <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n'}
-                      <span className="k">import</span> <span className="s">'@alikaner/lensjs/styles.css'</span><span className="p">;</span>{'\n\n'}
-                      <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">App</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
-                      {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
-                      {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
-                      {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/my-image.jpg"</span>{'\n'}
-                      {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Spotlight Banner"</span>{'\n'}
-                      {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"glare"</span>{'\n'}
-                      {'    '}<span className="p">/&gt;</span>{'\n'}
-                      {'  '}<span className="p">);</span>{'\n'}
-                      <span className="p">{"}"}</span>
-                    </code>
-                  </pre>
-                </div>
+                <CodeBlock
+                  title="React (TSX)"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+import '@alikaner/lensjs/styles.css';
+
+export default function App() {
+  return (
+    <LensImage 
+      src="/my-image.jpg" 
+      alt="Spotlight Banner" 
+      effect="glare" 
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n'}
+                  <span className="k">import</span> <span className="s">'@alikaner/lensjs/styles.css'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">App</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/my-image.jpg"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Spotlight Banner"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"glare"</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
               </section>
 
               <hr className="docs-divider" />
@@ -768,118 +857,280 @@ function App() {
 
                 <h3 className="docs-h3">1. E-commerce product zoom</h3>
                 <p>The <code>magnify</code> lens gives shoppers a detail loupe without any extra library. <code>intensity</code> controls the zoom factor (1 = 2×, 2 = 3×):</p>
-                <div className="code-block-header">
-                  <span>ProductImage.tsx</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage\n  src="/products/sneaker.jpg"\n  alt="Sneaker — detail view"\n  effect="magnify"\n  lensSize={180}\n  intensity={1.5}\n/>`, 'uc-magnify')}>
-                    {copiedId === 'uc-magnify' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre><code>{`<LensImage
-  src="/products/sneaker.jpg"
-  alt="Sneaker — detail view"
-  effect="magnify"
-  lensSize={180}
-  intensity={1.5}
-/>`}</code></pre>
-                </div>
+                <CodeBlock
+                  title="ProductImage.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+
+export default function ProductImage() {
+  return (
+    <LensImage
+      src="/products/sneaker.jpg"
+      alt="Sneaker — detail view"
+      effect="magnify"
+      lensSize={180}
+      intensity={1.5}
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">ProductImage</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/products/sneaker.jpg"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Sneaker — detail view"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"magnify"</span>{'\n'}
+                  {'      '}<span className="a">lensSize</span><span className="p">={'{'}</span><span className="n">180</span><span className="p">{'}'}</span>{'\n'}
+                  {'      '}<span className="a">intensity</span><span className="p">={'{'}</span><span className="n">1.5</span><span className="p">{'}'}</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
 
                 <h3 className="docs-h3">2. Before / after comparison</h3>
                 <p>Put the "after" image in <code>revealSrc</code> and sweep the lens across to compare edits, restorations, or design revisions in place:</p>
-                <div className="code-block-header">
-                  <span>BeforeAfter.tsx</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage\n  src="/photos/before.jpg"\n  revealSrc="/photos/after.jpg"\n  alt="Restoration comparison"\n  effect="reveal"\n  lensSize={220}\n  lensShape="square"\n/>`, 'uc-reveal')}>
-                    {copiedId === 'uc-reveal' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre><code>{`<LensImage
-  src="/photos/before.jpg"
-  revealSrc="/photos/after.jpg"
-  alt="Restoration comparison"
-  effect="reveal"
-  lensSize={220}
-  lensShape="square"
-/>`}</code></pre>
-                </div>
+                <CodeBlock
+                  title="BeforeAfter.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+
+export default function BeforeAfter() {
+  return (
+    <LensImage
+      src="/photos/before.jpg"
+      revealSrc="/photos/after.jpg"
+      alt="Restoration comparison"
+      effect="reveal"
+      lensSize={220}
+      lensShape="square"
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">BeforeAfter</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/photos/before.jpg"</span>{'\n'}
+                  {'      '}<span className="a">revealSrc</span><span className="p">=</span><span className="s">"/photos/after.jpg"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Restoration comparison"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"reveal"</span>{'\n'}
+                  {'      '}<span className="a">lensSize</span><span className="p">={'{'}</span><span className="n">220</span><span className="p">{'}'}</span>{'\n'}
+                  {'      '}<span className="a">lensShape</span><span className="p">=</span><span className="s">"square"</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
 
                 <h3 className="docs-h3">3. Cinematic hero banner</h3>
                 <p><code>ken-burns</code> adds documentary-style slow motion to large banners; pair it with a color grade for instant mood:</p>
-                <div className="code-block-container">
-                  <pre><code>{`<LensImage
-  src="/hero/skyline.jpg"
-  alt="City skyline at dusk"
-  effect="ken-burns"
-  filter="bladerunner"
-  style={{ width: '100%', height: '420px', objectFit: 'cover' }}
-/>`}</code></pre>
-                </div>
+                <CodeBlock
+                  title="HeroBanner.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+
+export default function HeroBanner() {
+  return (
+    <LensImage
+      src="/hero/skyline.jpg"
+      alt="City skyline at dusk"
+      effect="ken-burns"
+      filter="bladerunner"
+      style={{ width: '100%', height: '420px', objectFit: 'cover' }}
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">HeroBanner</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/hero/skyline.jpg"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"City skyline at dusk"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"ken-burns"</span>{'\n'}
+                  {'      '}<span className="a">filter</span><span className="p">=</span><span className="s">"bladerunner"</span>{'\n'}
+                  {'      '}<span className="a">style</span><span className="p">={'{{\n'}</span>
+                  {'        '}<span className="pr">width</span><span className="p">:</span> <span className="s">'100%'</span><span className="p">,</span>{'\n'}
+                  {'        '}<span className="pr">height</span><span className="p">:</span> <span className="s">'420px'</span><span className="p">,</span>{'\n'}
+                  {'        '}<span className="pr">objectFit</span><span className="p">:</span> <span className="s">'cover'</span>{'\n'}
+                  {'      '}<span className="p">{'}}'}</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
 
                 <h3 className="docs-h3">4. Consistent photo gallery</h3>
                 <p>Wrap a grid with <code>LensProvider</code> so every tile shares the same tuning, and give the gallery one visual language with a duotone preset:</p>
-                <div className="code-block-header">
-                  <span>Gallery.tsx</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensProvider value={{ intensity: 0.8 }}>\n  <div className="grid">\n    {photos.map((p) => (\n      <LensImage\n        key={p.id}\n        src={p.url}\n        alt={p.title}\n        effect="zoom"\n        filter="duotone-purple"\n      />\n    ))}\n  </div>\n</LensProvider>`, 'uc-gallery')}>
-                    {copiedId === 'uc-gallery' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre><code>{`<LensProvider value={{ intensity: 0.8 }}>
-  <div className="grid">
-    {photos.map((p) => (
-      <LensImage
-        key={p.id}
-        src={p.url}
-        alt={p.title}
-        effect="zoom"
-        filter="duotone-purple"
-      />
-    ))}
-  </div>
-</LensProvider>`}</code></pre>
-                </div>
+                <CodeBlock
+                  title="Gallery.tsx"
+                  copyText={`import { LensProvider, LensImage, type LensConfig } from '@alikaner/lensjs/react';
+
+const galleryConfig: LensConfig = {
+  intensity: 0.8
+};
+
+interface Photo {
+  id: string;
+  url: string;
+  title: string;
+}
+
+export default function Gallery({ photos }: { photos: Photo[] }) {
+  return (
+    <LensProvider value={galleryConfig}>
+      <div className="grid">
+        {photos.map((p) => (
+          <LensImage
+            key={p.id}
+            src={p.url}
+            alt={p.title}
+            effect="zoom"
+            filter="duotone-purple"
+          />
+        ))}
+      </div>
+    </LensProvider>
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensProvider</span><span className="p">,</span> <span className="c">LensImage</span><span className="p">,</span> <span className="k">type</span> <span className="c">LensConfig</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">const</span> <span className="pr">galleryConfig</span><span className="p">:</span> <span className="c">LensConfig</span> <span className="p">=</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="pr">intensity</span><span className="p">:</span> <span className="n">0.8</span>{'\n'}
+                  <span className="p">{"};"}</span>{'\n\n'}
+                  <span className="k">interface</span> <span className="c">Photo</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="pr">id</span><span className="p">:</span> <span className="k">string</span><span className="p">;</span>{'\n'}
+                  {'  '}<span className="pr">url</span><span className="p">:</span> <span className="k">string</span><span className="p">;</span>{'\n'}
+                  {'  '}<span className="pr">title</span><span className="p">:</span> <span className="k">string</span><span className="p">;</span>{'\n'}
+                  <span className="p">{"}"}</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">Gallery</span><span className="p">({"{"}</span> <span className="pr">photos</span> <span className="p">{"}"}</span><span className="p">:</span> <span className="p">{"{"}</span> <span className="pr">photos</span><span className="p">:</span> <span className="c">Photo</span><span className="p">[]</span> <span className="p">{"}"}</span><span className="p">)</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensProvider</span> <span className="a">value</span><span className="p">=</span><span className="p">{"{"}</span><span className="pr">galleryConfig</span><span className="p">{"}"}</span><span className="p">&gt;</span>{'\n'}
+                  {'      '}<span className="p">&lt;</span><span className="k">div</span> <span className="a">className</span><span className="p">=</span><span className="s">"grid"</span><span className="p">&gt;</span>{'\n'}
+                  {'        '}<span className="p">{"{"}</span><span className="pr">photos</span><span className="p">.</span><span className="f">map</span><span className="p">((</span><span className="pr">p</span><span className="p">)</span> <span className="p">=&gt;</span> <span className="p">{"("}</span>{'\n'}
+                  {'          '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'            '}<span className="a">key</span><span className="p">=</span><span className="p">{"{"}</span><span className="pr">p</span><span className="p">.</span><span className="pr">id</span><span className="p">{"}"}</span>{'\n'}
+                  {'            '}<span className="a">src</span><span className="p">=</span><span className="p">{"{"}</span><span className="pr">p</span><span className="p">.</span><span className="pr">url</span><span className="p">{"}"}</span>{'\n'}
+                  {'            '}<span className="a">alt</span><span className="p">=</span><span className="p">{"{"}</span><span className="pr">p</span><span className="p">.</span><span className="pr">title</span><span className="p">{"}"}</span>{'\n'}
+                  {'            '}<span className="a">effect</span><span className="p">=</span><span className="s">"zoom"</span>{'\n'}
+                  {'            '}<span className="a">filter</span><span className="p">=</span><span className="s">"duotone-purple"</span>{'\n'}
+                  {'          '}<span className="p">/&gt;</span>{'\n'}
+                  {'        '}<span className="p">)){"}"}</span>{'\n'}
+                  {'      '}<span className="p">&lt;</span><span className="p">/</span><span className="k">div</span><span className="p">&gt;</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="p">/</span><span className="c">LensProvider</span><span className="p">&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
 
                 <h3 className="docs-h3">5. Interactive profile / NFT card</h3>
                 <p><code>tilt-3d</code> makes cards lean toward the cursor in perspective — the modern "holo card" feel:</p>
-                <div className="code-block-container">
-                  <pre><code>{`<LensImage
-  src="/avatars/vault-042.png"
-  alt="Vault #042"
-  effect="tilt-3d"
-  intensity={1.4}
-  style={{ borderRadius: '20px' }}
-/>`}</code></pre>
-                </div>
+                <CodeBlock
+                  title="NftCard.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+
+export default function NftCard() {
+  return (
+    <LensImage
+      src="/avatars/vault-042.png"
+      alt="Vault #042"
+      effect="tilt-3d"
+      intensity={1.4}
+      style={{ borderRadius: '20px' }}
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">NftCard</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/avatars/vault-042.png"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Vault #042"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"tilt-3d"</span>{'\n'}
+                  {'      '}<span className="a">intensity</span><span className="p">={'{'}</span><span className="n">1.4</span><span className="p">{'}'}</span>{'\n'}
+                  {'      '}<span className="a">style</span><span className="p">={'{{\n'}</span>
+                  {'        '}<span className="pr">borderRadius</span><span className="p">:</span> <span className="s">'20px'</span>{'\n'}
+                  {'      '}<span className="p">{'}}'}</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
 
                 <h3 className="docs-h3">6. Spoiler / sensitive content cover</h3>
                 <p>Reverse the usual direction: render <code>pixelate</code> at rest by keeping the pointer parked, or use <code>blur-lens</code> so content is readable only where the user actively looks:</p>
-                <div className="code-block-container">
-                  <pre><code>{`<LensImage
-  src="/spoilers/finale-frame.jpg"
-  alt="Season finale spoiler"
-  effect="blur-lens"
-  intensity={2}
-  lensSize={160}
-/>`}</code></pre>
-                </div>
+                <CodeBlock
+                  title="SpoilerImage.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+
+export default function SpoilerImage() {
+  return (
+    <LensImage
+      src="/spoilers/finale-frame.jpg"
+      alt="Season finale spoiler"
+      effect="blur-lens"
+      intensity={2}
+      lensSize={160}
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">SpoilerImage</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/spoilers/finale-frame.jpg"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Season finale spoiler"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"blur-lens"</span>{'\n'}
+                  {'      '}<span className="a">intensity</span><span className="p">={'{'}</span><span className="n">2</span><span className="p">{'}'}</span>{'\n'}
+                  {'      '}<span className="a">lensSize</span><span className="p">={'{'}</span><span className="n">160</span><span className="p">{'}'}</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
 
                 <h3 className="docs-h3">7. Retro / archival media section</h3>
                 <p>Stack a permanent grade with a hover distortion — filters and effects compose freely:</p>
-                <div className="code-block-container">
-                  <pre><code>{`<LensImage
-  src="/archive/broadcast-1987.jpg"
-  alt="1987 broadcast still"
-  effect="scanlines"
-  filter="vintage-high"
-/>
+                <CodeBlock
+                  title="ArchiveMedia.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
 
-<LensImage
-  src="/archive/vhs-cover.jpg"
-  alt="VHS cover"
-  effect="glitch"
-  filter="grayscale"
-/>`}</code></pre>
-                </div>
+export default function ArchiveMedia() {
+  return (
+    <>
+      <LensImage
+        src="/archive/broadcast-1987.jpg"
+        alt="1987 broadcast still"
+        effect="scanlines"
+        filter="vintage-high"
+      />
+
+      <LensImage
+        src="/archive/vhs-cover.jpg"
+        alt="VHS cover"
+        effect="glitch"
+        filter="grayscale"
+      />
+    </>
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">ArchiveMedia</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;&gt;</span>{'\n'}
+                  {'      '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'        '}<span className="a">src</span><span className="p">=</span><span className="s">"/archive/broadcast-1987.jpg"</span>{'\n'}
+                  {'        '}<span className="a">alt</span><span className="p">=</span><span className="s">"1987 broadcast still"</span>{'\n'}
+                  {'        '}<span className="a">effect</span><span className="p">=</span><span className="s">"scanlines"</span>{'\n'}
+                  {'        '}<span className="a">filter</span><span className="p">=</span><span className="s">"vintage-high"</span>{'\n'}
+                  {'      '}<span className="p">/&gt;</span>{'\n\n'}
+                  {'      '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'        '}<span className="a">src</span><span className="p">=</span><span className="s">"/archive/vhs-cover.jpg"</span>{'\n'}
+                  {'        '}<span className="a">alt</span><span className="p">=</span><span className="s">"VHS cover"</span>{'\n'}
+                  {'        '}<span className="a">effect</span><span className="p">=</span><span className="s">"glitch"</span>{'\n'}
+                  {'        '}<span className="a">filter</span><span className="p">=</span><span className="s">"grayscale"</span>{'\n'}
+                  {'      '}<span className="p">/&gt;</span>{'\n'}
+                  {'    '}<span className="p">&lt;/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
               </section>
 
               <hr className="docs-divider" />
@@ -889,21 +1140,38 @@ function App() {
                 <p>
                   <code>LensImage</code> is not limited to images. Pass children instead of <code>src</code> and the wrapper applies CSS effects (zoom, glass, neon, tilt-3d, heart-beat, glitch text animation…) to any element — buttons, cards, headings:
                 </p>
-                <div className="code-block-header">
-                  <span>GlitchButton.tsx</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage effect="glitch">\n  <button className="cta">LAUNCH</button>\n</LensImage>\n\n<LensImage effect="tilt-3d" intensity={1.5}>\n  <div className="pricing-card">…</div>\n</LensImage>`, 'uc-wrap')}>
-                    {copiedId === 'uc-wrap' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre><code>{`<LensImage effect="glitch">
-  <button className="cta">LAUNCH</button>
-</LensImage>
+                <CodeBlock
+                  title="GlitchButton.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
 
-<LensImage effect="tilt-3d" intensity={1.5}>
-  <div className="pricing-card">…</div>
-</LensImage>`}</code></pre>
-                </div>
+export default function CustomElements() {
+  return (
+    <>
+      <LensImage effect="glitch">
+        <button className="cta">LAUNCH</button>
+      </LensImage>
+
+      <LensImage effect="tilt-3d" intensity={1.5}>
+        <div className="pricing-card">Premium Plan</div>
+      </LensImage>
+    </>
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">CustomElements</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;&gt;</span>{'\n'}
+                  {'      '}<span className="p">&lt;</span><span className="c">LensImage</span> <span className="a">effect</span><span className="p">=</span><span className="s">"glitch"</span><span className="p">&gt;</span>{'\n'}
+                  {'        '}<span className="p">&lt;</span><span className="k">button</span> <span className="a">className</span><span className="p">=</span><span className="s">"cta"</span><span className="p">&gt;</span>LAUNCH<span className="p">&lt;/</span><span className="k">button</span><span className="p">&gt;</span>{'\n'}
+                  {'      '}<span className="p">&lt;/</span><span className="c">LensImage</span><span className="p">&gt;</span>{'\n\n'}
+                  {'      '}<span className="p">&lt;</span><span className="c">LensImage</span> <span className="a">effect</span><span className="p">=</span><span className="s">"tilt-3d"</span> <span className="a">intensity</span><span className="p">={'{'}</span><span className="n">1.5</span><span className="p">{'}'}</span><span className="p">&gt;</span>{'\n'}
+                  {'        '}<span className="p">&lt;</span><span className="k">div</span> <span className="a">className</span><span className="p">=</span><span className="s">"pricing-card"</span><span className="p">&gt;</span>Premium Plan<span className="p">&lt;/</span><span className="k">div</span><span className="p">&gt;</span>{'\n'}
+                  {'      '}<span className="p">&lt;/</span><span className="c">LensImage</span><span className="p">&gt;</span>{'\n'}
+                  {'    '}<span className="p">&lt;/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
                 <div className="doc-alert warning">
                   <div className="alert-title">Canvas effects need an image</div>
                   <p>Pixel-processing effects (vortex, wave, halftone…) read image data, so they only run in image mode (`src` prop). When wrapping children, `glitch` falls back to a CSS text-glitch animation; other canvas effects stay inactive.</p>
@@ -917,22 +1185,28 @@ function App() {
                 <p>
                   Every canvas filter is exported from the package root as a pure, framework-agnostic function over raw RGBA buffers. <code>PixelData</code> is structurally compatible with the browser's <code>ImageData</code>, so you can run LensJS filters in your own canvas pipelines, web workers, or Node scripts:
                 </p>
-                <div className="code-block-header">
-                  <span>customPipeline.ts</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`import { applyVortex, applyHalftone } from '@alikaner/lensjs';\n\nconst ctx = canvas.getContext('2d');\nconst src = ctx.getImageData(0, 0, canvas.width, canvas.height);\nconst dst = ctx.createImageData(canvas.width, canvas.height);\n\napplyVortex(src, dst, 2.2); // swirl angle in radians\nctx.putImageData(dst, 0, 0);`, 'uc-core')}>
-                    {copiedId === 'uc-core' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre><code>{`import { applyVortex, applyHalftone } from '@alikaner/lensjs';
+                <CodeBlock
+                  title="customPipeline.ts"
+                  copyText={`import { applyVortex, type PixelData } from '@alikaner/lensjs';
 
-const ctx = canvas.getContext('2d');
-const src = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const dst = ctx.createImageData(canvas.width, canvas.height);
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d')!;
+const src: ImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const dst: ImageData = ctx.createImageData(canvas.width, canvas.height);
 
-applyVortex(src, dst, 2.2); // swirl angle in radians
-ctx.putImageData(dst, 0, 0);`}</code></pre>
-                </div>
+// Both src and dst are structurally compatible with PixelData
+applyVortex(src, dst, 2.2); // Swirl angle in radians (max strength is 2.2)
+ctx.putImageData(dst, 0, 0);`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="f">applyVortex</span><span className="p">,</span> <span className="k">type</span> <span className="c">PixelData</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">const</span> <span className="pr">canvas</span> <span className="p">=</span> <span className="pr">document</span><span className="p">.</span><span className="f">createElement</span><span className="p">(</span><span className="s">'canvas'</span><span className="p">);</span>{'\n'}
+                  <span className="k">const</span> <span className="pr">ctx</span> <span className="p">=</span> <span className="pr">canvas</span><span className="p">.</span><span className="f">getContext</span><span className="p">(</span><span className="s">'2d'</span><span className="p">)!;</span>{'\n'}
+                  <span className="k">const</span> <span className="pr">src</span><span className="p">:</span> <span className="c">ImageData</span> <span className="p">=</span> <span className="pr">ctx</span><span className="p">.</span><span className="f">getImageData</span><span className="p">(</span><span className="n">0</span><span className="p">,</span> <span className="n">0</span><span className="p">,</span> <span className="pr">canvas</span><span className="p">.</span><span className="pr">width</span><span className="p">,</span> <span className="pr">canvas</span><span className="p">.</span><span className="pr">height</span><span className="p">);</span>{'\n'}
+                  <span className="k">const</span> <span className="pr">dst</span><span className="p">:</span> <span className="c">ImageData</span> <span className="p">=</span> <span className="pr">ctx</span><span className="p">.</span><span className="f">createImageData</span><span className="p">(</span><span className="pr">canvas</span><span className="p">.</span><span className="pr">width</span><span className="p">,</span> <span className="pr">canvas</span><span className="p">.</span><span className="pr">height</span><span className="p">);</span>{'\n\n'}
+                  <span className="co">// Both src and dst are structurally compatible with PixelData</span>{'\n'}
+                  <span className="f">applyVortex</span><span className="p">(</span><span className="pr">src</span><span className="p">,</span> <span className="pr">dst</span><span className="p">,</span> <span className="n">2.2</span><span className="p">);</span> <span className="co">// Swirl angle in radians (max strength is 2.2)</span>{'\n'}
+                  <span className="pr">ctx</span><span className="p">.</span><span className="f">putImageData</span><span className="p">(</span><span className="pr">dst</span><span className="p">,</span> <span className="n">0</span><span className="p">,</span> <span className="n">0</span><span className="p">);</span>
+                </CodeBlock>
                 <div className="table-wrapper">
                   <table className="props-table">
                     <thead>
@@ -967,14 +1241,23 @@ ctx.putImageData(dst, 0, 0);`}</code></pre>
                   <li><strong>Cross-origin images:</strong> canvas effects request <code>crossOrigin="anonymous"</code> automatically. If the host doesn't allow CORS, the effect quietly disables itself — the image always renders.</li>
                   <li><strong>Accessibility:</strong> overlays (canvas, lens copies, reveal images) are marked <code>aria-hidden</code>; only your <code>alt</code> text is exposed. Always provide meaningful <code>alt</code>. Effects are hover-only decorations — content never depends on them.</li>
                   <li><strong>Reduced motion:</strong> to respect user preferences globally, disable animations in one rule:
-                    <div className="code-block-container" style={{ marginTop: 8 }}>
-                      <pre><code>{`@media (prefers-reduced-motion: reduce) {
+                    <CodeBlock
+                      title="globals.css"
+                      copyText={`@media (prefers-reduced-motion: reduce) {
   .lens-image-wrapper, .lens-image-wrapper * {
     animation: none !important;
     transition: none !important;
   }
-}`}</code></pre>
-                    </div>
+}`}
+                    >
+                      <span className="co">/* Disable animations if system prefers reduced motion */</span>{'\n'}
+                      <span className="k">@media</span> <span className="p">(</span><span className="a">prefers-reduced-motion</span><span className="p">:</span> <span className="pr">reduce</span><span className="p">)</span> <span className="p">{"{"}</span>{'\n'}
+                      {'  '}<span className="c">.lens-image-wrapper</span><span className="p">,</span> <span className="c">.lens-image-wrapper</span> <span className="p">*</span> <span className="p">{"{"}</span>{'\n'}
+                      {'    '}<span className="pr">animation</span><span className="p">:</span> <span className="pr">none</span> <span className="k">!important</span><span className="p">;</span>{'\n'}
+                      {'    '}<span className="pr">transition</span><span className="p">:</span> <span className="pr">none</span> <span className="k">!important</span><span className="p">;</span>{'\n'}
+                      {'  '}<span className="p">{"}"}</span>{'\n'}
+                      <span className="p">{"}"}</span>
+                    </CodeBlock>
                   </li>
                 </ul>
               </section>
@@ -1058,57 +1341,86 @@ ctx.putImageData(dst, 0, 0);`}</code></pre>
                   <li><strong><code>lensShape</code></strong>: Configures the outline boundary. Setting this to <code>'square'</code> gives the lens a modern, rounded-corner card clip-path, while <code>'circle'</code> renders a clean circle.</li>
                   <li><strong><code>revealSrc</code></strong>: Used specifically with the <code>reveal</code> effect to supply a secondary image that is slowly revealed inside the lens boundary as the cursor sweeps.</li>
                 </ul>
-                <div className="code-block-header">
-                  <span>Double Exposure Reveal Lens (JSX/TSX)</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage\n  src="/foreground.jpg"\n  revealSrc="/background.jpg"\n  effect="reveal"\n  lensSize={180}\n  lensShape="square"\n/>`, 'doc-lens-ex')}>
-                    Copy
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre>
-                    <code>
-                      <span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
-                      {'  '}<span className="a">src</span><span className="p">=</span><span className="s">"/foreground.jpg"</span>{'\n'}
-                      {'  '}<span className="a">revealSrc</span><span className="p">=</span><span className="s">"/background.jpg"</span>{'\n'}
-                      {'  '}<span className="a">effect</span><span className="p">=</span><span className="s">"reveal"</span>{'\n'}
-                      {'  '}<span className="a">lensSize</span><span className="p">={'{'}</span><span className="n">180</span><span className="p">{'}'}</span>{'\n'}
-                      {'  '}<span className="a">lensShape</span><span className="p">=</span><span className="s">"square"</span>{'\n'}
-                      <span className="p">/&gt;</span>
-                    </code>
-                  </pre>
-                </div>
+                <CodeBlock
+                  title="Double Exposure Reveal Lens (TSX)"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+
+export default function RevealLens() {
+  return (
+    <LensImage
+      src="/foreground.jpg"
+      revealSrc="/background.jpg"
+      alt="Double exposure reveal"
+      effect="reveal"
+      lensSize={180}
+      lensShape="square"
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">RevealLens</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/foreground.jpg"</span>{'\n'}
+                  {'      '}<span className="a">revealSrc</span><span className="p">=</span><span className="s">"/background.jpg"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Double exposure reveal"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"reveal"</span>{'\n'}
+                  {'      '}<span className="a">lensSize</span><span className="p">={'{'}</span><span className="n">180</span><span className="p">{'}'}</span>{'\n'}
+                  {'      '}<span className="a">lensShape</span><span className="p">=</span><span className="s">"square"</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
                 
                 <h3 style={{ marginTop: '24px', fontSize: '18px', color: 'var(--text-bright)' }}>Global Configurations &amp; Theme Overrides</h3>
                 <p>
                   To avoid repeating props on every instance, you can define global default configurations (such as lens dimensions, default intensities, or shapes) using the <code>LensProvider</code> React Context. This is extremely useful for syncing lens settings dynamically with your application's light/dark mode theme using JavaScript:
                 </p>
-                <div className="code-block-header">
-                  <span>Dynamic Theme Config (JSX/TSX)</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`import { LensProvider, LensImage } from '@alikaner/lensjs/react';\n\nfunction App() {\n  const [theme, setTheme] = useState('dark');\n\n  // Sync lens config variables dynamically with JS theme state\n  const lensConfig = {\n    lensSize: theme === 'dark' ? 180 : 130,\n    lensShape: (theme === 'dark' ? 'square' : 'circle') as const,\n    intensity: 1.2\n  };\n\n  return (\n    <LensProvider value={lensConfig}>\n      <div className="app-content">\n        <LensImage src="/avatar.jpg" effect="invert" />\n      </div>\n    </LensProvider>\n  );\n}`, 'doc-lens-provider')}>
-                    Copy
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre>
-                    <code>
-                      <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensProvider</span><span className="p">,</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
-                      <span className="k">function</span> <span className="f">App</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
-                      {'  '}<span className="k">const</span> <span className="p">[</span><span className="pr">theme</span><span className="p">]</span> <span className="p">=</span> <span className="f">useState</span><span className="p">(</span><span className="s">'dark'</span><span className="p">);</span>{'\n\n'}
-                      {'  '}<span className="co">// Sync lens variables dynamically with JS theme state</span>{'\n'}
-                      {'  '}<span className="k">const</span> <span className="pr">lensConfig</span> <span className="p">=</span> <span className="p">{"{"}</span>{'\n'}
-                      {'    '}<span className="pr">lensSize</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'dark'</span> <span className="p">?</span> <span className="n">180</span> <span className="p">:</span> <span className="n">130</span><span className="p">,</span>{'\n'}
-                      {'    '}<span className="pr">lensShape</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'dark'</span> <span className="p">?</span> <span className="s">'square'</span> <span className="p">:</span> <span className="s">'circle'</span><span className="p">,</span>{'\n'}
-                      {'    '}<span className="pr">intensity</span><span className="p">:</span> <span className="n">1.2</span>{'\n'}
-                      {'  '}<span className="p">{"}"}</span><span className="p">;</span>{'\n\n'}
-                      {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
-                      {'    '}<span className="p">&lt;</span><span className="c">LensProvider</span> <span className="a">value</span><span className="p">=</span><span className="p">{"{"}</span><span className="pr">lensConfig</span><span className="p">{"}"}</span><span className="p">&gt;</span>{'\n'}
-                      {'      '}<span className="p">&lt;</span><span className="c">LensImage</span> <span className="a">src</span><span className="p">=</span><span className="s">"/avatar.jpg"</span> <span className="a">effect</span><span className="p">=</span><span className="s">"invert"</span> <span className="p">/&gt;</span>{'\n'}
-                      {'    '}<span className="p">&lt;</span><span className="p">/</span><span className="c">LensProvider</span><span className="p">&gt;</span>{'\n'}
-                      {'  '}<span className="p">);</span>{'\n'}
-                      <span className="p">{"}"}</span>
-                    </code>
-                  </pre>
-                </div>
+                <CodeBlock
+                  title="Dynamic Theme Config (TSX)"
+                  copyText={`import { useState } from 'react';
+import { LensProvider, LensImage, type LensConfig } from '@alikaner/lensjs/react';
+
+type Theme = 'light' | 'dark';
+
+export default function App() {
+  const [theme] = useState<Theme>('dark');
+
+  // LensConfig ensures lensShape has correct literal type
+  const lensConfig: LensConfig = {
+    lensSize: theme === 'dark' ? 180 : 130,
+    lensShape: theme === 'dark' ? 'square' : 'circle',
+    intensity: 1.2
+  };
+
+  return (
+    <LensProvider value={lensConfig}>
+      <div className="app-content">
+        <LensImage src="/avatar.jpg" effect="invert" />
+      </div>
+    </LensProvider>
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">useState</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'react'</span><span className="p">;</span>{'\n'}
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensProvider</span><span className="p">,</span> <span className="c">LensImage</span><span className="p">,</span> <span className="k">type</span> <span className="c">LensConfig</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">type</span> <span className="c">Theme</span> <span className="p">=</span> <span className="s">'light'</span> <span className="p">|</span> <span className="s">'dark'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">App</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">const</span> <span className="p">[</span><span className="pr">theme</span><span className="p">]</span> <span className="p">=</span> <span className="f">useState</span><span className="p">&lt;</span><span className="c">Theme</span><span className="p">&gt;</span><span className="p">(</span><span className="s">'dark'</span><span className="p">);</span>{'\n\n'}
+                  {'  '}<span className="co">// LensConfig ensures lensShape has correct literal type</span>{'\n'}
+                  {'  '}<span className="k">const</span> <span className="pr">lensConfig</span><span className="p">:</span> <span className="c">LensConfig</span> <span className="p">=</span> <span className="p">{"{"}</span>{'\n'}
+                  {'    '}<span className="pr">lensSize</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'dark'</span> <span className="p">?</span> <span className="n">180</span> <span className="p">:</span> <span className="n">130</span><span className="p">,</span>{'\n'}
+                  {'    '}<span className="pr">lensShape</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'dark'</span> <span className="p">?</span> <span className="s">'square'</span> <span className="p">:</span> <span className="s">'circle'</span><span className="p">,</span>{'\n'}
+                  {'    '}<span className="pr">intensity</span><span className="p">:</span> <span className="n">1.2</span>{'\n'}
+                  {'  '}<span className="p">{"}"}</span><span className="p">;</span>{'\n\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensProvider</span> <span className="a">value</span><span className="p">=</span><span className="p">{"{"}</span><span className="pr">lensConfig</span><span className="p">{"}"}</span><span className="p">&gt;</span>{'\n'}
+                  {'      '}<span className="p">&lt;</span><span className="c">LensImage</span> <span className="a">src</span><span className="p">=</span><span className="s">"/avatar.jpg"</span> <span className="a">effect</span><span className="p">=</span><span className="s">"invert"</span> <span className="p">/&gt;</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="p">/</span><span className="c">LensProvider</span><span className="p">&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
               </section>
 
               <hr className="docs-divider" />
@@ -1118,24 +1430,33 @@ ctx.putImageData(dst, 0, 0);`}</code></pre>
                 <p>
                   The <code>filter</code> prop applies a permanent, movie-inspired color grade to the image. Unlike <code>effect</code> (which reacts to hover), a filter is always on, and the two can be combined freely:
                 </p>
-                <div className="code-block-header">
-                  <span>React (JSX/TSX)</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage\n  src="/poster.jpg"\n  alt="Poster"\n  effect="zoom"\n  filter="bladerunner"\n/>`, 'doc-filter')}>
-                    {copiedId === 'doc-filter' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <div className="code-block-container">
-                  <pre>
-                    <code>
-                      <span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
-                      {'  '}<span className="a">src</span><span className="p">=</span><span className="s">"/poster.jpg"</span>{'\n'}
-                      {'  '}<span className="a">alt</span><span className="p">=</span><span className="s">"Poster"</span>{'\n'}
-                      {'  '}<span className="a">effect</span><span className="p">=</span><span className="s">"zoom"</span>{'\n'}
-                      {'  '}<span className="a">filter</span><span className="p">=</span><span className="s">"bladerunner"</span>{'\n'}
-                      <span className="p">/&gt;</span>
-                    </code>
-                  </pre>
-                </div>
+                <CodeBlock
+                  title="ColorFilters.tsx"
+                  copyText={`import { LensImage } from '@alikaner/lensjs/react';
+
+export default function ColorFilters() {
+  return (
+    <LensImage
+      src="/poster.jpg"
+      alt="Poster"
+      effect="zoom"
+      filter="bladerunner"
+    />
+  );
+}`}
+                >
+                  <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                  <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">ColorFilters</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                  {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
+                  {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"/poster.jpg"</span>{'\n'}
+                  {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Poster"</span>{'\n'}
+                  {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"zoom"</span>{'\n'}
+                  {'      '}<span className="a">filter</span><span className="p">=</span><span className="s">"bladerunner"</span>{'\n'}
+                  {'    '}<span className="p">/&gt;</span>{'\n'}
+                  {'  '}<span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
                 <div className="table-wrapper">
                   <table className="props-table">
                     <thead>
@@ -1176,35 +1497,37 @@ ctx.putImageData(dst, 0, 0);`}</code></pre>
                 <p>
                   LensJS automatically applies a `.lens-image-wrapper` class and a `data-lens-effect` attribute to the wrapping node. You can easily tweak or override transitions in your own stylesheet:
                 </p>
-                <div className="code-block-container">
-                  <pre>
-                    <code>
-                      <span className="co">/* Override Zoom intensity in your local stylesheet */</span>{'\n'}
-                      <span className="c">.lens-image-wrapper</span><span className="p">[</span><span className="a">data-lens-effect</span><span className="p">=</span><span className="s">"zoom"</span><span className="p">]:</span><span className="a">hover</span> <span className="c">img</span> <span className="p">{"{"}</span>{'\n'}
-                      {'  '}<span className="pr">transform</span><span className="p">:</span> <span className="f">scale</span><span className="p">(</span><span className="n">1.25</span><span className="p">);</span> <span className="co">/* Default is 1.2 */</span>{'\n'}
-                      {'  '}<span className="pr">filter</span><span className="p">:</span> <span className="f">brightness</span><span className="p">(</span><span className="n">1.05</span><span className="p">);</span>{'\n'}
-                      <span className="p">{"}"}</span>
-                    </code>
-                  </pre>
-                </div>
-                <p>
+                <CodeBlock
+                  title="custom.css"
+                  copyText={`.lens-image-wrapper[data-lens-effect="zoom"]:hover img {
+  transform: scale(1.25); /* Default is 1.2 */
+  filter: brightness(1.05);
+}`}
+                >
+                  <span className="co">/* Override Zoom intensity in your local stylesheet */</span>{'\n'}
+                  <span className="c">.lens-image-wrapper</span><span className="p">[</span><span className="a">data-lens-effect</span><span className="p">=</span><span className="s">"zoom"</span><span className="p">]:</span><span className="a">hover</span> <span className="c">img</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="pr">transform</span><span className="p">:</span> <span className="f">scale</span><span className="p">(</span><span className="n">1.25</span><span className="p">);</span> <span className="co">/* Default is 1.2 */</span>{'\n'}
+                  {'  '}<span className="pr">filter</span><span className="p">:</span> <span className="f">brightness</span><span className="p">(</span><span className="n">1.05</span><span className="p">);</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
+                <p style={{ marginTop: '20px' }}>
                   The <code>invert</code> effect renders a circular lens that follows your cursor and inverts every color beneath it. Its diameter is controlled by the <code>--lens-size</code> CSS variable (default <code>130px</code>):
                 </p>
-                <div className="code-block-container">
-                  <pre>
-                    <code>
-                      <span className="co">/* Make the invert lens larger */</span>{'\n'}
-                      <span className="c">.lens-image-wrapper</span><span className="p">[</span><span className="a">data-lens-effect</span><span className="p">=</span><span className="s">"invert"</span><span className="p">]</span> <span className="p">{"{"}</span>{'\n'}
-                      {'  '}<span className="pr">--lens-size</span><span className="p">:</span> <span className="n">200px</span><span className="p">;</span>{'\n'}
-                      <span className="p">{"}"}</span>
-                    </code>
-                  </pre>
-                </div>
+                <CodeBlock
+                  title="custom.css"
+                  copyText={`.lens-image-wrapper[data-lens-effect="invert"] {
+  --lens-size: 200px;
+}`}
+                >
+                  <span className="co">/* Make the invert lens larger */</span>{'\n'}
+                  <span className="c">.lens-image-wrapper</span><span className="p">[</span><span className="a">data-lens-effect</span><span className="p">=</span><span className="s">"invert"</span><span className="p">]</span> <span className="p">{"{"}</span>{'\n'}
+                  {'  '}<span className="pr">--lens-size</span><span className="p">:</span> <span className="n">200px</span><span className="p">;</span>{'\n'}
+                  <span className="p">{"}"}</span>
+                </CodeBlock>
               </section>
             </div>
           </div>
         )}
-
         {/* Examples View */}
         {activeTab === 'examples' && (
           <div className="view-fade examples-container">

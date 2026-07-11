@@ -210,6 +210,11 @@ pre::-webkit-scrollbar-track,
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .header-actions .github-btn {
   display: flex;
   align-items: center;
@@ -617,16 +622,18 @@ pre::-webkit-scrollbar-track,
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  margin-right: 12px;
-  background: var(--bg-card);
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: 20px;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.search-trigger:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 .search-trigger:hover {
   border-color: var(--border-focus);
@@ -1106,6 +1113,7 @@ pre::-webkit-scrollbar-track,
   transform: scale(0.98);
 }
 
+.code-block-container,
 .code-block-container-compact {
   background: var(--bg-code);
   border: 1px solid var(--border-subtle);
@@ -1114,20 +1122,23 @@ pre::-webkit-scrollbar-track,
   overflow-x: auto;
   margin-top: 10px;
 }
+.code-block-container pre,
 .code-block-container-compact pre {
   font-family: var(--font-mono);
-  font-size: 12.5px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
 }
 /* Code Highlight Colors */
-.code-block-container-compact .k { color: #f472b6; } /* keyword */
-.code-block-container-compact .c { color: #c084fc; } /* component/class */
-.code-block-container-compact .p { color: #94a3b8; } /* punctuation */
-.code-block-container-compact .s { color: #34d399; } /* string */
-.code-block-container-compact .a { color: #fbbf24; } /* attribute */
-.code-block-container-compact .pr { color: #a5b4fc; } /* style properties */
-.code-block-container-compact .co { color: #475569; } /* comment */
-.code-block-container-compact .f { color: #38bdf8; } /* function */
+.code-block-container .k, .code-block-container-compact .k { color: #f472b6; } /* keyword */
+.code-block-container .c, .code-block-container-compact .c { color: #c084fc; } /* component/class/type */
+.code-block-container .p, .code-block-container-compact .p { color: #94a3b8; } /* punctuation */
+.code-block-container .s, .code-block-container-compact .s { color: #34d399; } /* string */
+.code-block-container .a, .code-block-container-compact .a { color: #fbbf24; } /* attribute */
+.code-block-container .pr, .code-block-container-compact .pr { color: #a5b4fc; } /* style properties/variables */
+.code-block-container .co, .code-block-container-compact .co { color: #475569; } /* comment */
+.code-block-container .f, .code-block-container-compact .f { color: #38bdf8; } /* function */
+.code-block-container .n, .code-block-container-compact .n { color: #fb7185; } /* number */
 
 /* ---------------------------------------------------- */
 /* Documentation Page Layout                            */
@@ -1176,15 +1187,31 @@ pre::-webkit-scrollbar-track,
   color: var(--text-primary);
   text-decoration: none;
   font-size: 14px;
-  padding: 6px 0;
-  transition: color 0.2s;
+  padding: 6px 0 6px 12px;
+  border-left: 2px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .sidebar-link:hover {
   color: var(--text-bright);
+  border-left-color: rgba(192, 132, 252, 0.25);
+  padding-left: 14px;
 }
 .sidebar-link.active {
-  color: var(--glow-accent);
+  color: #fff;
   font-weight: 600;
+  border-left-color: var(--glow-accent);
+  text-shadow: 0 0 10px rgba(192, 132, 252, 0.5), 0 0 20px rgba(192, 132, 252, 0.2);
+  padding-left: 16px;
+  animation: pulseActiveGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseActiveGlow {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.4), 0 0 16px rgba(192, 132, 252, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 14px rgba(192, 132, 252, 0.7), 0 0 28px rgba(192, 132, 252, 0.3);
+  }
 }
 
 .docs-body {
@@ -1594,13 +1621,24 @@ pre::-webkit-scrollbar-track,
   .sidebar-link {
     display: inline-block;
     white-space: nowrap;
-    padding: 6px 12px;
+    padding: 6px 12px !important;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.02);
     font-size: 13px;
+    border-left: none !important;
+    transition: all 0.2s ease;
+  }
+  .sidebar-link:hover {
+    padding-left: 12px !important;
   }
   .sidebar-link.active {
-    background: rgba(192, 132, 252, 0.08);
+    background: rgba(192, 132, 252, 0.15) !important;
+    border: 1px solid var(--glow-accent) !important;
+    box-shadow: 0 0 12px rgba(192, 132, 252, 0.25) !important;
+    padding-left: 12px !important;
+    animation: none !important;
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.4) !important;
+    color: #fff !important;
   }
 }
 
