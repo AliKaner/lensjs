@@ -151,12 +151,24 @@ pre::-webkit-scrollbar-track,
   justify-content: space-between;
   align-items: center;
   padding: 24px 0;
-  border-bottom: 1px solid var(--border-subtle);
   position: sticky;
   top: 0;
+  z-index: 100;
+}
+/* Full-bleed backdrop: the bar's color, blur and border stretch across the
+   whole viewport instead of stopping at the container edges */
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
   background: rgba(3, 4, 7, 0.8);
   backdrop-filter: blur(12px);
-  z-index: 100;
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: -1;
 }
 
 .logo {
