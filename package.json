@@ -1,0 +1,37 @@
+{
+  "name": "lensjs",
+  "version": "1.0.0",
+  "description": "Image processing library for lens images",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "image",
+    "processing",
+    "lens",
+    "lensjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "tsup": "^8.1.0",
+    "vitest": "^1.6.0"
+  }
+}
