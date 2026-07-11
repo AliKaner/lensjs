@@ -77,6 +77,26 @@ describe('LensImage component', () => {
     expect(html).toContain('src="/ikiru.jpg"');
   });
 
+  it('should render the back image for flip-reveal', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(LensImage, { src: '/lotr.jpg', alt: 'Lotr', effect: 'flip-reveal', revealSrc: '/ikiru.jpg' })
+    );
+    expect(html).toContain('lens-reveal-img');
+    expect(html).toContain('src="/ikiru.jpg"');
+  });
+
+  it.each(['magnify', 'blur-lens', 'grayscale-lens'] as const)(
+    'should render a viewport copy for the %s lens',
+    (effect) => {
+      const html = renderToStaticMarkup(
+        React.createElement(LensImage, { src: '/lotr.jpg', alt: 'Lotr', effect })
+      );
+      expect(html).toContain('lens-viewport');
+      // The viewport contains a second copy of the source image
+      expect(html.split('src="/lotr.jpg"').length - 1).toBe(2);
+    }
+  );
+
   it('should inherit global config from LensProvider', () => {
     const html = renderToStaticMarkup(
       React.createElement(

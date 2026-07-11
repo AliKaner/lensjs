@@ -79,7 +79,9 @@ function App() {
     setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
   };
 
-  const isLensEffect = sandboxEffect === 'invert' || sandboxEffect === 'reveal';
+  const lensEffects: LensEffect[] = ['invert', 'reveal', 'magnify', 'blur-lens', 'grayscale-lens', 'spotlight'];
+  const isLensEffect = lensEffects.includes(sandboxEffect);
+  const needsRevealSrc = sandboxEffect === 'reveal' || sandboxEffect === 'flip-reveal';
 
   const sandboxCodeSrc = sandboxImg.startsWith('/') ? '/your-image.jpg' : sandboxImg;
   const sandboxRevealSrc = sandboxImg === '/ikiru.jpg' ? '/lotr.jpg' : '/ikiru.jpg';
@@ -93,6 +95,14 @@ function App() {
     { id: 'invert-full', name: 'Invert Full', desc: 'Flips the entire image to its exact negative on hover' },
     { id: 'neon', name: 'Neon Glow', desc: 'Applies a vibrant, shifting neon border and shadow' },
     { id: 'reveal', name: 'Reveal Lens', desc: 'Cursor lens that reveals a second image underneath' },
+    { id: 'magnify', name: 'Magnify', desc: 'Classic magnifying glass zoom locked to your cursor' },
+    { id: 'blur-lens', name: 'Blur Lens', desc: 'Image blurs on hover while the lens stays tack sharp' },
+    { id: 'grayscale-lens', name: 'Grayscale Lens', desc: 'Black & white image, true colors through the lens' },
+    { id: 'flip-reveal', name: 'Flip Reveal', desc: '3D card flip revealing a second image on the back' },
+    { id: 'tilt-3d', name: 'Tilt 3D', desc: 'Perspective card tilt that leans towards your cursor' },
+    { id: 'spotlight', name: 'Spotlight', desc: 'Cursor-following light beam, the rest fades to dark' },
+    { id: 'ken-burns', name: 'Ken Burns', desc: 'Slow cinematic pan & zoom while hovered' },
+    { id: 'scanlines', name: 'Scanlines', desc: 'Retro CRT/VHS horizontal line overlay' },
     { id: 'vortex', name: 'Vortex', desc: 'Whirlpool that twists pixels around the center (canvas)' },
     { id: 'noise', name: 'Film Grain', desc: 'Animated analog grain rendered per-pixel (canvas)' },
     { id: 'glitch', name: 'Glitch', desc: 'RGB splits and displaced slices, like corrupted VHS (canvas)' },
@@ -352,7 +362,7 @@ function App() {
                     alt="Sandbox Preview"
                     effect={sandboxEffect}
                     filter={sandboxFilter === 'none' ? undefined : sandboxFilter}
-                    revealSrc={sandboxEffect === 'reveal' ? sandboxRevealSrc : undefined}
+                    revealSrc={needsRevealSrc ? sandboxRevealSrc : undefined}
                     intensity={sandboxIntensity}
                     lensSize={isLensEffect ? sandboxLensSize : undefined}
                     lensShape={isLensEffect ? sandboxLensShape : undefined}
@@ -507,7 +517,7 @@ function App() {
                         <button 
                           className="copy-code-btn-compact"
                           onClick={() => handleCopy(
-                            `import { LensImage } from 'lensjs/react';\nimport 'lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"\n      effect="${sandboxEffect}"${sandboxEffect === 'reveal' ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ width: '100%', maxWidth: '400px', borderRadius: '16px' }}\n    />\n  );\n}`,
+                            `import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"\n      effect="${sandboxEffect}"${needsRevealSrc ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ width: '100%', maxWidth: '400px', borderRadius: '16px' }}\n    />\n  );\n}`,
                             'sandbox-code'
                           )}
                         >
@@ -518,15 +528,15 @@ function App() {
                       <div className="code-block-container-compact">
                         <pre>
                           <code>
-                            <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'lensjs/react'</span><span className="p">;</span>{'\n'}
-                            <span className="k">import</span> <span className="s">'lensjs/styles.css'</span><span className="p">;</span>{'\n\n'}
+                            <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n'}
+                            <span className="k">import</span> <span className="s">'@alikaner/lensjs/styles.css'</span><span className="p">;</span>{'\n\n'}
                             <span className="k">function</span> <span className="f">Demo</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
                             {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
                             {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
                             {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"{sandboxCodeSrc.length > 40 ? sandboxCodeSrc.substring(0, 37) + '...' : sandboxCodeSrc}"</span>{'\n'}
                             {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Demo Image"</span>{'\n'}
                             {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"{sandboxEffect}"</span>{'\n'}
-                            {sandboxEffect === 'reveal' && (
+                            {needsRevealSrc && (
                               <>{'      '}<span className="a">revealSrc</span><span className="p">=</span><span className="s">"/second-image.jpg"</span>{'\n'}</>
                             )}
                             {sandboxFilter !== 'none' && (
@@ -571,6 +581,13 @@ function App() {
               <div className="sidebar-group">
                 <div className="sidebar-group-title">Frameworks</div>
                 <a href="#nextjs" className="sidebar-link">Next.js Integration</a>
+              </div>
+              <div className="sidebar-group">
+                <div className="sidebar-group-title">Guides</div>
+                <a href="#use-cases" className="sidebar-link">Use Cases &amp; Recipes</a>
+                <a href="#element-wrap" className="sidebar-link">Wrapping Elements</a>
+                <a href="#core-api" className="sidebar-link">Core Pixel API</a>
+                <a href="#performance" className="sidebar-link">Performance &amp; A11y</a>
               </div>
               <div className="sidebar-group">
                 <div className="sidebar-group-title">API Reference</div>
@@ -658,6 +675,225 @@ function App() {
 
               <hr className="docs-divider" />
 
+              <section id="use-cases">
+                <h2>Use Cases &amp; Recipes</h2>
+                <p>Copy-paste starting points for the most common real-world scenarios.</p>
+
+                <h3 className="docs-h3">1. E-commerce product zoom</h3>
+                <p>The <code>magnify</code> lens gives shoppers a detail loupe without any extra library. <code>intensity</code> controls the zoom factor (1 = 2×, 2 = 3×):</p>
+                <div className="code-block-header">
+                  <span>ProductImage.tsx</span>
+                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage\n  src="/products/sneaker.jpg"\n  alt="Sneaker — detail view"\n  effect="magnify"\n  lensSize={180}\n  intensity={1.5}\n/>`, 'uc-magnify')}>
+                    {copiedId === 'uc-magnify' ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <div className="code-block-container">
+                  <pre><code>{`<LensImage
+  src="/products/sneaker.jpg"
+  alt="Sneaker — detail view"
+  effect="magnify"
+  lensSize={180}
+  intensity={1.5}
+/>`}</code></pre>
+                </div>
+
+                <h3 className="docs-h3">2. Before / after comparison</h3>
+                <p>Put the "after" image in <code>revealSrc</code> and sweep the lens across to compare edits, restorations, or design revisions in place:</p>
+                <div className="code-block-header">
+                  <span>BeforeAfter.tsx</span>
+                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage\n  src="/photos/before.jpg"\n  revealSrc="/photos/after.jpg"\n  alt="Restoration comparison"\n  effect="reveal"\n  lensSize={220}\n  lensShape="square"\n/>`, 'uc-reveal')}>
+                    {copiedId === 'uc-reveal' ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <div className="code-block-container">
+                  <pre><code>{`<LensImage
+  src="/photos/before.jpg"
+  revealSrc="/photos/after.jpg"
+  alt="Restoration comparison"
+  effect="reveal"
+  lensSize={220}
+  lensShape="square"
+/>`}</code></pre>
+                </div>
+
+                <h3 className="docs-h3">3. Cinematic hero banner</h3>
+                <p><code>ken-burns</code> adds documentary-style slow motion to large banners; pair it with a color grade for instant mood:</p>
+                <div className="code-block-container">
+                  <pre><code>{`<LensImage
+  src="/hero/skyline.jpg"
+  alt="City skyline at dusk"
+  effect="ken-burns"
+  filter="bladerunner"
+  style={{ width: '100%', height: '420px', objectFit: 'cover' }}
+/>`}</code></pre>
+                </div>
+
+                <h3 className="docs-h3">4. Consistent photo gallery</h3>
+                <p>Wrap a grid with <code>LensProvider</code> so every tile shares the same tuning, and give the gallery one visual language with a duotone preset:</p>
+                <div className="code-block-header">
+                  <span>Gallery.tsx</span>
+                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensProvider value={{ intensity: 0.8 }}>\n  <div className="grid">\n    {photos.map((p) => (\n      <LensImage\n        key={p.id}\n        src={p.url}\n        alt={p.title}\n        effect="zoom"\n        filter="duotone-purple"\n      />\n    ))}\n  </div>\n</LensProvider>`, 'uc-gallery')}>
+                    {copiedId === 'uc-gallery' ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <div className="code-block-container">
+                  <pre><code>{`<LensProvider value={{ intensity: 0.8 }}>
+  <div className="grid">
+    {photos.map((p) => (
+      <LensImage
+        key={p.id}
+        src={p.url}
+        alt={p.title}
+        effect="zoom"
+        filter="duotone-purple"
+      />
+    ))}
+  </div>
+</LensProvider>`}</code></pre>
+                </div>
+
+                <h3 className="docs-h3">5. Interactive profile / NFT card</h3>
+                <p><code>tilt-3d</code> makes cards lean toward the cursor in perspective — the modern "holo card" feel:</p>
+                <div className="code-block-container">
+                  <pre><code>{`<LensImage
+  src="/avatars/vault-042.png"
+  alt="Vault #042"
+  effect="tilt-3d"
+  intensity={1.4}
+  style={{ borderRadius: '20px' }}
+/>`}</code></pre>
+                </div>
+
+                <h3 className="docs-h3">6. Spoiler / sensitive content cover</h3>
+                <p>Reverse the usual direction: render <code>pixelate</code> at rest by keeping the pointer parked, or use <code>blur-lens</code> so content is readable only where the user actively looks:</p>
+                <div className="code-block-container">
+                  <pre><code>{`<LensImage
+  src="/spoilers/finale-frame.jpg"
+  alt="Season finale spoiler"
+  effect="blur-lens"
+  intensity={2}
+  lensSize={160}
+/>`}</code></pre>
+                </div>
+
+                <h3 className="docs-h3">7. Retro / archival media section</h3>
+                <p>Stack a permanent grade with a hover distortion — filters and effects compose freely:</p>
+                <div className="code-block-container">
+                  <pre><code>{`<LensImage
+  src="/archive/broadcast-1987.jpg"
+  alt="1987 broadcast still"
+  effect="scanlines"
+  filter="vintage-high"
+/>
+
+<LensImage
+  src="/archive/vhs-cover.jpg"
+  alt="VHS cover"
+  effect="glitch"
+  filter="grayscale"
+/>`}</code></pre>
+                </div>
+              </section>
+
+              <hr className="docs-divider" />
+
+              <section id="element-wrap">
+                <h2>Wrapping Arbitrary Elements</h2>
+                <p>
+                  <code>LensImage</code> is not limited to images. Pass children instead of <code>src</code> and the wrapper applies CSS effects (zoom, glass, neon, tilt-3d, heart-beat, glitch text animation…) to any element — buttons, cards, headings:
+                </p>
+                <div className="code-block-header">
+                  <span>GlitchButton.tsx</span>
+                  <button className="copy-btn-small" onClick={() => handleCopy(`<LensImage effect="glitch">\n  <button className="cta">LAUNCH</button>\n</LensImage>\n\n<LensImage effect="tilt-3d" intensity={1.5}>\n  <div className="pricing-card">…</div>\n</LensImage>`, 'uc-wrap')}>
+                    {copiedId === 'uc-wrap' ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <div className="code-block-container">
+                  <pre><code>{`<LensImage effect="glitch">
+  <button className="cta">LAUNCH</button>
+</LensImage>
+
+<LensImage effect="tilt-3d" intensity={1.5}>
+  <div className="pricing-card">…</div>
+</LensImage>`}</code></pre>
+                </div>
+                <div className="doc-alert warning">
+                  <div className="alert-title">Canvas effects need an image</div>
+                  <p>Pixel-processing effects (vortex, wave, halftone…) read image data, so they only run in image mode (`src` prop). When wrapping children, `glitch` falls back to a CSS text-glitch animation; other canvas effects stay inactive.</p>
+                </div>
+              </section>
+
+              <hr className="docs-divider" />
+
+              <section id="core-api">
+                <h2>Core Pixel API</h2>
+                <p>
+                  Every canvas filter is exported from the package root as a pure, framework-agnostic function over raw RGBA buffers. <code>PixelData</code> is structurally compatible with the browser's <code>ImageData</code>, so you can run LensJS filters in your own canvas pipelines, web workers, or Node scripts:
+                </p>
+                <div className="code-block-header">
+                  <span>customPipeline.ts</span>
+                  <button className="copy-btn-small" onClick={() => handleCopy(`import { applyVortex, applyHalftone } from '@alikaner/lensjs';\n\nconst ctx = canvas.getContext('2d');\nconst src = ctx.getImageData(0, 0, canvas.width, canvas.height);\nconst dst = ctx.createImageData(canvas.width, canvas.height);\n\napplyVortex(src, dst, 2.2); // swirl angle in radians\nctx.putImageData(dst, 0, 0);`, 'uc-core')}>
+                    {copiedId === 'uc-core' ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <div className="code-block-container">
+                  <pre><code>{`import { applyVortex, applyHalftone } from '@alikaner/lensjs';
+
+const ctx = canvas.getContext('2d');
+const src = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const dst = ctx.createImageData(canvas.width, canvas.height);
+
+applyVortex(src, dst, 2.2); // swirl angle in radians
+ctx.putImageData(dst, 0, 0);`}</code></pre>
+                </div>
+                <div className="table-wrapper">
+                  <table className="props-table">
+                    <thead>
+                      <tr><th>Function</th><th>Signature (src, dst, …)</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td><code>applyVortex</code></td><td><code>(src, dst, strength)</code></td><td>Swirl angle in radians; <code>VORTEX_MAX_STRENGTH = 2.2</code></td></tr>
+                      <tr><td><code>applyFisheye</code></td><td><code>(src, dst, strength)</code></td><td>0–1 barrel bulge; <code>FISHEYE_MAX_STRENGTH = 0.55</code></td></tr>
+                      <tr><td><code>applyNoise</code></td><td><code>(src, dst, amount, seed)</code></td><td>Deterministic per seed — advance seed to animate grain</td></tr>
+                      <tr><td><code>applyGlitch</code></td><td><code>(src, dst, intensity, seed)</code></td><td>RGB split + displaced slices, seeded</td></tr>
+                      <tr><td><code>applyPixelate</code></td><td><code>(src, dst, blockSize)</code></td><td>Block-average mosaic</td></tr>
+                      <tr><td><code>applyDenoise</code></td><td><code>(src, dst, amount)</code></td><td>3×3 gaussian blend</td></tr>
+                      <tr><td><code>applySharpen</code></td><td><code>(src, dst, amount)</code></td><td>Unsharp-mask laplacian</td></tr>
+                      <tr><td><code>applyWave</code></td><td><code>(src, dst, strength, phase)</code></td><td>Animate <code>phase</code> for flowing ripples</td></tr>
+                      <tr><td><code>applyChromatic</code></td><td><code>(src, dst, shift)</code></td><td>Radial RGB displacement</td></tr>
+                      <tr><td><code>applyHalftone</code></td><td><code>(src, dst, blockSize, strength)</code></td><td>Newsprint dots; strength blends with original</td></tr>
+                      <tr><td><code>applyPosterize</code></td><td><code>(src, dst, strength)</code></td><td>Channel quantization, 16→4 levels</td></tr>
+                      <tr><td><code>applyMelt</code></td><td><code>(src, dst, strength, phase)</code></td><td>Animate <code>phase</code> for crawling drips</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <hr className="docs-divider" />
+
+              <section id="performance">
+                <h2>Performance &amp; Accessibility</h2>
+                <ul>
+                  <li><strong>Pixel buffers are capped at 600px</strong> on the longest side, so per-frame processing stays cheap even for large images. The canvas overlay is upscaled by the browser.</li>
+                  <li><strong>Processing runs only while hovered.</strong> No effect costs anything at rest; static effects (vortex, fisheye…) also stop once their entry animation settles. Animated ones (noise, glitch, wave, melt) run one <code>requestAnimationFrame</code> loop per hovered instance.</li>
+                  <li><strong>CSS effects are GPU-friendly</strong> — transforms, filters and clip-paths that don't trigger layout.</li>
+                  <li><strong>Cross-origin images:</strong> canvas effects request <code>crossOrigin="anonymous"</code> automatically. If the host doesn't allow CORS, the effect quietly disables itself — the image always renders.</li>
+                  <li><strong>Accessibility:</strong> overlays (canvas, lens copies, reveal images) are marked <code>aria-hidden</code>; only your <code>alt</code> text is exposed. Always provide meaningful <code>alt</code>. Effects are hover-only decorations — content never depends on them.</li>
+                  <li><strong>Reduced motion:</strong> to respect user preferences globally, disable animations in one rule:
+                    <div className="code-block-container" style={{ marginTop: 8 }}>
+                      <pre><code>{`@media (prefers-reduced-motion: reduce) {
+  .lens-image-wrapper, .lens-image-wrapper * {
+    animation: none !important;
+    transition: none !important;
+  }
+}`}</code></pre>
+                    </div>
+                  </li>
+                </ul>
+              </section>
+
+              <hr className="docs-divider" />
+
               <section id="props">
                 <h2>Props Reference</h2>
                 <p>The `<LensImage />` component extends all standard HTML image attributes (e.g. `src`, `alt`, `style`, `className`, `loading`, etc.) and supports the following custom props:</p>
@@ -675,7 +911,7 @@ function App() {
                     <tbody>
                       <tr>
                         <td><code className="prop-name">effect</code></td>
-                        <td><code>'zoom' | 'glare' | 'glass' | 'blur-vignette' | 'invert' | 'invert-full' | 'reveal' | 'neon' | 'vortex' | 'noise' | 'glitch' | 'fisheye' | 'pixelate' | 'denoise' | 'resolution-boost' | 'wave' | 'chromatic-aberration' | 'halftone' | 'posterize' | 'melt' | 'shadow' | 'heart-beat'</code></td>
+                        <td><code>'zoom' | 'glare' | 'glass' | 'blur-vignette' | 'invert' | 'invert-full' | 'reveal' | 'magnify' | 'blur-lens' | 'grayscale-lens' | 'flip-reveal' | 'neon' | 'vortex' | 'noise' | 'glitch' | 'fisheye' | 'pixelate' | 'denoise' | 'resolution-boost' | 'wave' | 'chromatic-aberration' | 'halftone' | 'posterize' | 'melt' | 'tilt-3d' | 'spotlight' | 'ken-burns' | 'scanlines' | 'shadow' | 'heart-beat'</code></td>
                         <td><code>-</code></td>
                         <td>The interactive hover effect to render. Canvas-based pixel effects read and process image data in real-time.</td>
                       </tr>
@@ -689,7 +925,7 @@ function App() {
                         <td><code className="prop-name">revealSrc</code></td>
                         <td><code>string</code></td>
                         <td><code>-</code></td>
-                        <td>Second image shown inside the cursor lens when <code>effect="reveal"</code>.</td>
+                        <td>Second image shown inside the cursor lens (<code>effect="reveal"</code>) or on the card back (<code>effect="flip-reveal"</code>).</td>
                       </tr>
                       <tr>
                         <td><code className="prop-name">intensity</code></td>
@@ -701,13 +937,13 @@ function App() {
                         <td><code className="prop-name">lensSize</code></td>
                         <td><code>number</code></td>
                         <td><code>130</code></td>
-                        <td>Lens diameter in pixels for the lens effects (<code>invert</code>, <code>reveal</code>).</td>
+                        <td>Lens diameter in pixels for the cursor lens effects (<code>invert</code>, <code>reveal</code>, <code>magnify</code>, <code>blur-lens</code>, <code>grayscale-lens</code>, <code>spotlight</code>).</td>
                       </tr>
                       <tr>
                         <td><code className="prop-name">lensShape</code></td>
                         <td><code>'circle' | 'square'</code></td>
                         <td><code>'circle'</code></td>
-                        <td>Shape of the cursor lens for <code>invert</code> and <code>reveal</code>.</td>
+                        <td>Shape of the cursor lens (<code>invert</code>, <code>reveal</code>, <code>magnify</code>, <code>blur-lens</code>, <code>grayscale-lens</code>).</td>
                       </tr>
                       <tr>
                         <td><code className="prop-name">...props</code></td>
@@ -725,7 +961,7 @@ function App() {
               <section id="lenses">
                 <h2>Lens Configuration</h2>
                 <p>
-                  LensJS includes specialized cursor-following effects: <code>invert</code> and <code>reveal</code>. These effects track your mouse cursor coordinates and apply high-performance CSS clip-paths or backdrop-filters.
+                  LensJS includes six specialized cursor-following effects: <code>invert</code>, <code>reveal</code>, <code>magnify</code>, <code>blur-lens</code>, <code>grayscale-lens</code> and <code>spotlight</code>. They track your mouse coordinates and apply high-performance CSS clip-paths, backdrop-filters, or transform origins.
                 </p>
                 <p>
                   You can control the dimensions and outline style of these lenses using standard component props:
@@ -991,7 +1227,49 @@ function App() {
                 </div>
               </div>
 
-              {/* Card 6: Button Glitch Showcase */}
+              {/* Card 6: E-commerce Magnify */}
+              <div className="example-demo-card">
+                <div className="demo-card-preview">
+                  <LensImage
+                    src="/ikiru.jpg"
+                    alt="Ikiru — magnifier detail view"
+                    effect="magnify"
+                    lensSize={160}
+                    className="demo-card-img"
+                  />
+                  <div className="demo-card-tag">Magnify Lens</div>
+                </div>
+                <div className="demo-card-info">
+                  <div className="demo-card-category">E-Commerce Loupe</div>
+                  <h4 className="demo-card-title">Product Detail Zoom</h4>
+                  <div className="demo-card-price-row">
+                    <span className="watch-btn">Hover to Inspect</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 7: Flip Reveal */}
+              <div className="example-demo-card">
+                <div className="demo-card-preview">
+                  <LensImage
+                    src="/lotr.jpg"
+                    revealSrc="/ikiru.jpg"
+                    alt="Double feature card"
+                    effect="flip-reveal"
+                    className="demo-card-img"
+                  />
+                  <div className="demo-card-tag">Flip Reveal</div>
+                </div>
+                <div className="demo-card-info">
+                  <div className="demo-card-category">Double Feature</div>
+                  <h4 className="demo-card-title">Two Films, One Card</h4>
+                  <div className="demo-card-price-row">
+                    <span className="watch-btn">Hover to Flip</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 8: Button Glitch Showcase */}
               <div className="example-demo-card">
                 <div className="demo-card-preview" style={{ background: '#080a10', padding: '60px 20px', minHeight: '200px' }}>
                   <LensImage effect="glitch" style={{ cursor: 'pointer' }}>

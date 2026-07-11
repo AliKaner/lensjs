@@ -540,6 +540,14 @@ body {
 
 /* Effect styles now come from the package itself: `import 'lensjs/styles.css'` in App.tsx */
 
+/* Docs sub-headings inside guide sections */
+.docs-h3 {
+  margin-top: 28px;
+  margin-bottom: 8px;
+  font-size: 17px;
+  color: var(--text-bright, #fff);
+}
+
 /* Sandbox fine-tune sliders */
 .slider-row {
   display: flex;

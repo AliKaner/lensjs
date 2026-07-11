@@ -1,7 +1,7 @@
 {
   "name": "@alikaner/lensjs",
   "version": "1.0.0",
-  "description": "Image processing library for lens images",
+  "description": "Interactive lens effects, canvas pixel filters and cinematic color presets for React & Next.js images",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -19,10 +19,25 @@
     "./styles.css": "./styles.css"
   },
   "style": "./styles.css",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "dist",
     "styles.css"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AliKaner/lensjs.git",
+    "directory": "packages/lensjs"
+  },
+  "homepage": "https://github.com/AliKaner/lensjs#readme",
+  "bugs": {
+    "url": "https://github.com/AliKaner/lensjs/issues"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
@@ -30,12 +45,22 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
+    "react",
+    "nextjs",
     "image",
-    "processing",
+    "image-effects",
+    "image-processing",
+    "hover-effects",
+    "canvas",
+    "filters",
+    "color-grading",
+    "duotone",
+    "glitch",
     "lens",
+    "magnify",
     "lensjs"
   ],
-  "author": "",
+  "author": "Ali Kaner (https://github.com/AliKaner)",
   "license": "MIT",
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

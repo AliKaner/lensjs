@@ -30,13 +30,13 @@ export interface LensImageProps extends Omit<React.HTMLAttributes<HTMLDivElement
   effect?: LensEffect;
   /** Movie-inspired color grading preset; composes with any `effect`. */
   filter?: LensFilter;
-  /** Second image revealed inside the cursor lens when `effect="reveal"`. */
+  /** Second image shown by `effect="reveal"` (inside the lens) or `effect="flip-reveal"` (card back). */
   revealSrc?: string;
   /** Effect strength multiplier (0..2). 1 = default look, 0 disables, 2 doubles. */
   intensity?: number;
-  /** Lens diameter in px for the lens effects (invert, reveal). Default 130. */
+  /** Lens diameter in px for the lens effects (invert, reveal, magnify, blur-lens, grayscale-lens, spotlight). Default 130. */
   lensSize?: number;
-  /** Lens shape for the lens effects (invert, reveal). Default 'circle'. */
+  /** Lens shape for the cursor lens effects. Default 'circle'. */
   lensShape?: 'circle' | 'square';
   // Image props (optional if child element is used instead)
   src?: string;
@@ -216,9 +216,17 @@ export function LensImage({
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     const rect = wrapper.getBoundingClientRect();
-    wrapper.style.setProperty('--lens-x', `${e.clientX - rect.left}px`);
-    wrapper.style.setProperty('--lens-y', `${e.clientY - rect.top}px`);
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    wrapper.style.setProperty('--lens-x', `${x}px`);
+    wrapper.style.setProperty('--lens-y', `${y}px`);
+    // Normalized offsets (-1..1) from the center, used by tilt-3d
+    wrapper.style.setProperty('--lens-dx', ((x / rect.width) * 2 - 1).toFixed(3));
+    wrapper.style.setProperty('--lens-dy', ((y / rect.height) * 2 - 1).toFixed(3));
   };
+
+  const usesViewport =
+    (effect === 'magnify' || effect === 'blur-lens' || effect === 'grayscale-lens') && !children && !!src;
 
   return (
     <div
@@ -248,7 +256,12 @@ export function LensImage({
         />
       )}
       {usesCanvas && <canvas ref={canvasRef} className="lens-canvas" aria-hidden="true" />}
-      {effect === 'reveal' && revealSrc && (
+      {usesViewport && (
+        <span className="lens-viewport" aria-hidden="true">
+          <img src={src} alt="" crossOrigin={activeCrossOrigin} />
+        </span>
+      )}
+      {(effect === 'reveal' || effect === 'flip-reveal') && revealSrc && (
         <img src={revealSrc} alt="" aria-hidden="true" className="lens-reveal-img" />
       )}
     </div>

@@ -3,14 +3,20 @@ import { readFileSync } from 'node:fs';
 
 // Every member of the LensEffect / LensFilter unions must have a matching rule in the shipped stylesheet
 const effects = [
-  'zoom', 'glare', 'glass', 'blur-vignette', 'invert', 'invert-full', 'reveal', 'neon',
+  'zoom', 'glare', 'glass', 'blur-vignette', 'invert', 'invert-full', 'reveal',
+  'magnify', 'blur-lens', 'grayscale-lens', 'flip-reveal', 'neon',
   'vortex', 'noise', 'glitch', 'fisheye', 'pixelate', 'denoise', 'resolution-boost',
+  'wave', 'chromatic-aberration', 'halftone', 'posterize', 'melt',
+  'tilt-3d', 'spotlight', 'ken-burns', 'scanlines',
   'shadow', 'heart-beat',
 ] as const;
 
 const filters = [
   'bladerunner', 'twilight-1', 'twilight-2', 'twilight-3',
   'matrix', 'noir', 'mad-max', 'grayscale',
+  'cyberpunk', 'vintage', 'sunset', 'oceanic',
+  'duotone-purple', 'duotone-red', 'duotone-cyan',
+  'dreamy', 'vintage-high', 'amaro',
 ] as const;
 
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');

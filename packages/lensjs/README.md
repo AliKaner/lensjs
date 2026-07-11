@@ -9,8 +9,9 @@ Now supports **arbitrary HTML elements** wrapping (e.g. glitching buttons, glowi
 ## ✨ Features
 
 - **Zero-Dependency Core**: Lightweight footprint driven by high-performance CSS transforms and vanilla Canvas pixel shaders.
-- **16 Interactive Hover Effects**: Including Reflection Glare, Frosted Glass, Neon Spotlight, Invert Mask, Double Exposure Reveal, VHS Glitch, Fluid Wave, Swirl Vortex, Halftone, Posterize, and Melt.
+- **30 Interactive Hover Effects**: Cursor lenses (magnify, invert, reveal, blur, grayscale), canvas pixel distortions (vortex, glitch, wave, fisheye, melt, halftone…), and cinematic CSS motion (tilt-3d, ken-burns, spotlight, flip-reveal, scanlines…).
 - **18 Movie-Inspired Filter Presets**: Permanent cinematic color grades (Blade Runner, Matrix, Cyberpunk, Twilight, Noir, Sunset, Duotones, and Bloom) that compose seamlessly with hover effects.
+- **Fine-Tuning Props**: Scale any effect with `intensity` (0–2), and control cursor lenses with `lensSize` and `lensShape` (circle/square).
 - **HTML Element Wrapping**: Nest any child node (like buttons, spans, or custom cards) to apply CSS scaling, filters, and dynamic glitch animations on hover.
 - **Global Context Provider**: Control and update default lens sizes, shapes, and intensities dynamically using React context.
 - **Next.js & SSR Compatible**: Safe hydration, zero client-side load flashes, and fully responsive layouts.
@@ -88,27 +89,63 @@ export default function ActionButton() {
 
 ## 🎨 Interactive Effects List
 
-### CSS-Driven Effects
+### CSS Motion & Framing
 *   `zoom`: Smooth scale magnification on hover.
 *   `glare`: Silky dynamic light sweep reflection.
 *   `glass`: Frosted glass borders, background filters, and soft drop shadow lifts.
+*   `blur-vignette`: Center focus with soft blur and a dark vignette ring.
 *   `neon`: Glowing shifting border spotlights.
 *   `shadow`: Smooth drop shadow lift.
 *   `heart-beat`: Rhythmic, elastic scaling pulse.
 *   `invert-full`: Inverts colors of the entire image on hover.
+*   `tilt-3d`: Perspective card tilt that leans towards the cursor.
+*   `ken-burns`: Slow cinematic pan & zoom while hovered.
+*   `flip-reveal`: 3D card flip revealing `revealSrc` on the back face.
+*   `spotlight`: Cursor-following light beam; the rest fades to black.
+*   `scanlines`: Retro CRT/VHS horizontal line overlay.
 
 ### Cursor Lens Masking
-*   `invert`: Renders a cursor-following magnifying frame that inverts all pixel values beneath it.
-*   `reveal`: Blends two images (double exposure), revealing `revealSrc` inside the cursor lens bounds.
+*   `invert`: Cursor-following lens that inverts all colors beneath it.
+*   `reveal`: Double exposure — `revealSrc` shows through the cursor lens.
+*   `magnify`: Classic e-commerce magnifying glass zoom under the cursor.
+*   `blur-lens`: The image blurs on hover while the lens stays sharp (focus ring).
+*   `grayscale-lens`: Black & white image; true colors show through the lens.
 
-### Canvas Shader Shaders (Raster Pixel distortion)
-*   `glitch`: High-frequency RGB color channel separations and horizontal raster line displacements.
-*   `vortex`: Twisting whirlpool coordinate distortion centered at your mouse cursor.
+### Canvas Pixel Processing (real per-pixel image processing)
+*   `glitch`: High-frequency RGB channel separations and displaced raster slices.
+*   `vortex`: Twisting whirlpool coordinate distortion around the center.
 *   `wave`: Rolling fluid water wave displacement ripples.
-*   `chromatic-aberration`: RGB channel color displacement.
+*   `fisheye`: Wide-angle barrel bulge magnifying the center.
+*   `noise`: Live animated analog film grain.
+*   `pixelate`: Growing mosaic blocks.
+*   `denoise`: Gaussian smoothing that softens grain and artifacts.
+*   `resolution-boost`: Unsharp-mask sharpening for crisper perceived detail.
+*   `chromatic-aberration`: Radial RGB channel displacement.
 *   `halftone`: Retro newspaper dot-matrix shading.
 *   `posterize`: Flat color binning.
 *   `melt`: Liquid vertical pixel drip animation.
+
+> **CORS note:** canvas effects must read pixel data. Images from another domain need CORS enabled on the server (LensJS requests them with `crossOrigin="anonymous"` automatically). If pixel access is blocked, the effect silently stays off and the image renders normally.
+
+---
+
+## 🔬 Core API — use the pixel filters anywhere
+
+All canvas filters are exported as pure, framework-agnostic functions operating on raw RGBA buffers (`PixelData` is structurally compatible with canvas `ImageData`). You can run them in your own canvas pipelines, web workers, or Node:
+
+```ts
+import { applyVortex, applyHalftone, type PixelData } from '@alikaner/lensjs';
+
+const ctx = canvas.getContext('2d')!;
+const src = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const dst = ctx.createImageData(canvas.width, canvas.height);
+
+applyVortex(src, dst, 2.2);           // swirl angle in radians
+// applyHalftone(src, dst, 8, 1);     // block size, blend strength
+ctx.putImageData(dst, 0, 0);
+```
+
+Exported functions: `applyVortex`, `applyNoise`, `applyGlitch`, `applyFisheye`, `applyPixelate`, `applyDenoise`, `applySharpen`, `applyWave`, `applyChromatic`, `applyHalftone`, `applyPosterize`, `applyMelt` — plus their tuning constants (`VORTEX_MAX_STRENGTH`, `NOISE_MAX_AMOUNT`, …).
 
 ---
 
