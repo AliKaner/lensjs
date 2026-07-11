@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LensImage, type LensEffect, type LensFilter } from '@alikaner/lensjs/react';
 import '@alikaner/lensjs/styles.css';
 import './App.css';
@@ -44,6 +44,12 @@ const AtomSVG = () => (
 const PaintSVG = () => (
   <svg className="spec-svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+  </svg>
+);
+
+const SearchSVG = () => (
+  <svg className="icon" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ width: '15px', height: '15px' }}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
   </svg>
 );
 
@@ -146,6 +152,82 @@ function App() {
     { name: 'Ikiru', url: '/ikiru.jpg' },
   ];
 
+  // ---------------------------------------------------------------
+  // Global search (Ctrl/Cmd + K) over docs sections, effects and filters
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchIndex, setSearchIndex] = useState(0);
+
+  const docsSections = [
+    { id: 'intro', title: 'Introduction', keywords: 'about overview canvas pixel processing zero dependency' },
+    { id: 'installation', title: 'Installation', keywords: 'npm install setup package pnpm yarn' },
+    { id: 'usage', title: 'Basic Usage', keywords: 'import quickstart example styles.css getting started' },
+    { id: 'nextjs', title: 'Next.js Integration', keywords: 'ssr app router server components use client hydration' },
+    { id: 'use-cases', title: 'Use Cases & Recipes', keywords: 'ecommerce product zoom before after comparison hero banner gallery nft card spoiler retro archive recipes examples' },
+    { id: 'element-wrap', title: 'Wrapping Elements', keywords: 'children button glitch text wrap html arbitrary elements' },
+    { id: 'core-api', title: 'Core Pixel API', keywords: 'apply vortex noise pure functions imagedata pixeldata worker node pipeline' },
+    { id: 'performance', title: 'Performance & Accessibility', keywords: 'a11y cors reduced motion aria requestanimationframe alt text' },
+    { id: 'props', title: 'Props Schema', keywords: 'api reference effect filter intensity lenssize lensshape revealsrc props table' },
+    { id: 'lenses', title: 'Lens Configuration', keywords: 'lens size shape provider global config theme cursor' },
+    { id: 'color-filters', title: 'Color Filters', keywords: 'presets movie color grades cinematic' },
+    { id: 'custom-css', title: 'Custom CSS Variables', keywords: 'override css variables customize stylesheet' },
+  ];
+
+  const openDocsSection = (id: string) => {
+    setSearchOpen(false);
+    setActiveTab('docs');
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 80);
+  };
+  const openEffectInSandbox = (id: LensEffect) => {
+    setSearchOpen(false);
+    setActiveTab('sandbox');
+    setSandboxEffect(id);
+  };
+  const openFilterInSandbox = (id: LensFilter) => {
+    setSearchOpen(false);
+    setActiveTab('sandbox');
+    setSandboxFilter(id);
+  };
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    const results: { key: string; type: string; title: string; desc: string; run: () => void }[] = [];
+    for (const s of docsSections) {
+      if (`${s.title} ${s.keywords}`.toLowerCase().includes(q)) {
+        results.push({ key: `d-${s.id}`, type: 'Docs', title: s.title, desc: 'Documentation section', run: () => openDocsSection(s.id) });
+      }
+    }
+    for (const e of effectsList) {
+      if (`${e.id} ${e.name} ${e.desc}`.toLowerCase().includes(q)) {
+        results.push({ key: `e-${e.id}`, type: 'Effect', title: e.name, desc: e.desc, run: () => openEffectInSandbox(e.id) });
+      }
+    }
+    for (const f of filtersList) {
+      if (f.id !== 'none' && `${f.id} ${f.name}`.toLowerCase().includes(q)) {
+        results.push({ key: `f-${f.id}`, type: 'Filter', title: f.name, desc: 'Color grading preset — try it in the sandbox', run: () => openFilterInSandbox(f.id as LensFilter) });
+      }
+    }
+    return results.slice(0, 12);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+        setSearchQuery('');
+        setSearchIndex(0);
+      } else if (e.key === 'Escape') {
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+  // ---------------------------------------------------------------
+
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -190,6 +272,11 @@ function App() {
           <button className={`nav-link ${activeTab === 'examples' ? 'active' : ''}`} onClick={() => setActiveTab('examples')}>Examples</button>
         </nav>
         <div className="header-actions">
+          <button className="search-trigger" onClick={() => { setSearchOpen(true); setSearchQuery(''); setSearchIndex(0); }} title="Search (Ctrl+K)">
+            <SearchSVG />
+            <span className="search-trigger-label">Search</span>
+            <kbd className="search-kbd">Ctrl K</kbd>
+          </button>
           <a href="https://github.com/alikaner/lensjs" target="_blank" rel="noopener noreferrer" className="github-btn">
             <svg className="icon github-svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
@@ -1291,6 +1378,63 @@ ctx.putImageData(dst, 0, 0);`}</code></pre>
           </div>
         )}
       </main>
+
+      {/* Global Search Modal (Ctrl/Cmd + K) */}
+      {searchOpen && (
+        <div className="search-overlay" onClick={() => setSearchOpen(false)}>
+          <div className="search-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="search-input-row">
+              <SearchSVG />
+              <input
+                autoFocus
+                type="text"
+                className="search-input"
+                placeholder="Search docs, effects, filters…"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setSearchIndex(0); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setSearchIndex((i) => Math.min(i + 1, searchResults.length - 1));
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setSearchIndex((i) => Math.max(i - 1, 0));
+                  } else if (e.key === 'Enter') {
+                    searchResults[searchIndex]?.run();
+                  }
+                }}
+              />
+              <kbd className="search-kbd">ESC</kbd>
+            </div>
+            {searchQuery.trim() ? (
+              <div className="search-results">
+                {searchResults.length === 0 ? (
+                  <div className="search-empty">No results for “{searchQuery}”</div>
+                ) : (
+                  searchResults.map((r, i) => (
+                    <button
+                      key={r.key}
+                      className={`search-result ${i === searchIndex ? 'active' : ''}`}
+                      onClick={r.run}
+                      onMouseEnter={() => setSearchIndex(i)}
+                    >
+                      <span className={`search-result-type type-${r.type.toLowerCase()}`}>{r.type}</span>
+                      <span className="search-result-main">
+                        <span className="search-result-title">{r.title}</span>
+                        <span className="search-result-desc">{r.desc}</span>
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="search-hint">
+                Search across all documentation sections, {effectsList.length} effects and {filtersList.length - 1} color filters. Use ↑ ↓ and Enter.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <footer className="footer">
         <div className="footer-left" style={{ display: 'flex', alignItems: 'center' }}>
