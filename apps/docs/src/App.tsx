@@ -64,6 +64,10 @@ function App() {
   const [sandboxLensShape, setSandboxLensShape] = useState<'circle' | 'square'>('circle');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // States for landing page hero visual showcase
+  const [heroEffect, setHeroEffect] = useState<LensEffect>('invert');
+  const [heroFilter, setHeroFilter] = useState<LensFilter | 'none'>('cyberpunk');
+
   // Accordion open/collapse states for Sandbox
   const [expandedGroups, setExpandedGroups] = useState({
     effects: true,
@@ -189,34 +193,91 @@ function App() {
         {activeTab === 'landing' && (
           <div className="view-fade">
             {/* Hero Section */}
-            <section className="hero">
-              <div className="version-tag">v1.0.0 is now live</div>
-              <h1>Stunning <span className="gradient-text">Interactive Lens Effects</span> for React</h1>
-              <p className="hero-subtitle">
-                A lightweight, zero-dependency utility package to wrap your images in premium, glassmorphic reflections, interactive neon bounds, and silky-smooth hover scaling.
-              </p>
-              
-              <div className="hero-actions-container">
-                <button className="cta-btn primary-cta" onClick={() => setActiveTab('sandbox')}>
-                  Open Sandbox
-                  <ArrowRightIcon />
-                </button>
-                <button className="cta-btn secondary-cta" onClick={() => setActiveTab('docs')}>
-                  Read Documentation
-                </button>
+            <section className="hero-layout">
+              <div className="hero-text-side">
+                <div className="version-tag">v1.0.0 is now live</div>
+                <h1>Stunning <span className="gradient-text">Interactive Lens Effects</span> for React</h1>
+                <p className="hero-subtitle">
+                  A lightweight, zero-dependency utility package to wrap your images in premium, glassmorphic reflections, interactive neon bounds, and silky-smooth hover scaling.
+                </p>
+                
+                <div className="hero-actions-container">
+                  <button className="cta-btn primary-cta" onClick={() => setActiveTab('sandbox')}>
+                    Open Sandbox
+                    <ArrowRightIcon />
+                  </button>
+                  <button className="cta-btn secondary-cta" onClick={() => setActiveTab('docs')}>
+                    Read Documentation
+                  </button>
+                </div>
+
+                {/* Instant install pill */}
+                <div className="install-pill">
+                  <span className="install-prompt">$</span>
+                  <code className="install-code">npm install lensjs</code>
+                  <button 
+                    className="copy-pill-btn" 
+                    onClick={() => handleCopy('npm install lensjs', 'npm-install')}
+                    title="Copy installation command"
+                  >
+                    {copiedId === 'npm-install' ? <CheckIcon /> : <CopyIcon />}
+                  </button>
+                </div>
               </div>
 
-              {/* Instant install pill */}
-              <div className="install-pill">
-                <span className="install-prompt">$</span>
-                <code className="install-code">npm install lensjs</code>
-                <button 
-                  className="copy-pill-btn" 
-                  onClick={() => handleCopy('npm install lensjs', 'npm-install')}
-                  title="Copy installation command"
-                >
-                  {copiedId === 'npm-install' ? <CheckIcon /> : <CopyIcon />}
-                </button>
+              <div className="hero-visual-side">
+                <div className="hero-showcase-card">
+                  <div className="showcase-window-header">
+                    <div className="window-dots">
+                      <span className="dot dot-red"></span>
+                      <span className="dot dot-yellow"></span>
+                      <span className="dot dot-green"></span>
+                    </div>
+                    <span className="window-title">interactive_lens.tsx</span>
+                  </div>
+                  
+                  <div className="showcase-preview-area">
+                    <LensImage
+                      src="/lotr.jpg"
+                      revealSrc="/ikiru.jpg"
+                      effect={heroEffect}
+                      filter={heroFilter === 'none' ? undefined : heroFilter}
+                      lensShape={heroEffect === 'invert' ? 'square' : 'circle'}
+                      lensSize={140}
+                      className="hero-showcase-img"
+                    />
+                  </div>
+                  
+                  <div className="showcase-footer-controls">
+                    <span className="showcase-ctrl-label">Preset:</span>
+                    <div className="showcase-presets-row">
+                      <button
+                        className={`showcase-chip ${heroEffect === 'vortex' ? 'active' : ''}`}
+                        onClick={() => { setHeroEffect('vortex'); setHeroFilter('bladerunner'); }}
+                      >
+                        Vortex
+                      </button>
+                      <button
+                        className={`showcase-chip ${heroEffect === 'invert' ? 'active' : ''}`}
+                        onClick={() => { setHeroEffect('invert'); setHeroFilter('cyberpunk'); }}
+                      >
+                        Invert
+                      </button>
+                      <button
+                        className={`showcase-chip ${heroEffect === 'reveal' ? 'active' : ''}`}
+                        onClick={() => { setHeroEffect('reveal'); setHeroFilter('none'); }}
+                      >
+                        Reveal
+                      </button>
+                      <button
+                        className={`showcase-chip ${heroEffect === 'glitch' ? 'active' : ''}`}
+                        onClick={() => { setHeroEffect('glitch'); setHeroFilter('matrix'); }}
+                      >
+                        Glitch
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 
