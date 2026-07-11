@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { LensImage, type LensEffect, type LensFilter } from 'lensjs/react';
-import 'lensjs/styles.css';
+import { LensImage, type LensEffect, type LensFilter } from '@alikaner/lensjs/react';
+import '@alikaner/lensjs/styles.css';
 import './App.css';
 
 type Tab = 'landing' | 'docs' | 'examples' | 'sandbox';
@@ -214,10 +214,10 @@ function App() {
                 {/* Instant install pill */}
                 <div className="install-pill">
                   <span className="install-prompt">$</span>
-                  <code className="install-code">npm install lensjs</code>
+                  <code className="install-code">npm install @alikaner/lensjs</code>
                   <button 
                     className="copy-pill-btn" 
-                    onClick={() => handleCopy('npm install lensjs', 'npm-install')}
+                    onClick={() => handleCopy('npm install @alikaner/lensjs', 'npm-install')}
                     title="Copy installation command"
                   >
                     {copiedId === 'npm-install' ? <CheckIcon /> : <CopyIcon />}
@@ -604,12 +604,12 @@ function App() {
                 <p>Install the library using your package manager of choice:</p>
                 <div className="code-block-header">
                   <span>Terminal</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy('npm install lensjs', 'doc-install')}>
+                  <button className="copy-btn-small" onClick={() => handleCopy('npm install @alikaner/lensjs', 'doc-install')}>
                     {copiedId === 'doc-install' ? 'Copied' : 'Copy'}
                   </button>
                 </div>
                 <div className="code-block-container">
-                  <pre><code>npm install lensjs</code></pre>
+                  <pre><code>npm install @alikaner/lensjs</code></pre>
                 </div>
               </section>
 
@@ -620,15 +620,15 @@ function App() {
                 <p>Import the `LensImage` wrapper together with the effect stylesheet (once, anywhere in your app), then apply one of the effects:</p>
                 <div className="code-block-header">
                   <span>React (JSX/TSX)</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`import { LensImage } from 'lensjs/react';\nimport 'lensjs/styles.css';\n\nexport default function App() {\n  return (\n    <LensImage \n      src="/path/to/my-image.jpg" \n      alt="Spotlight Banner" \n      effect="glare" \n    />\n  );\n}`, 'doc-usage')}>
+                  <button className="copy-btn-small" onClick={() => handleCopy(`import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nexport default function App() {\n  return (\n    <LensImage \n      src="/path/to/my-image.jpg" \n      alt="Spotlight Banner" \n      effect="glare" \n    />\n  );\n}`, 'doc-usage')}>
                     {copiedId === 'doc-usage' ? 'Copied' : 'Copy'}
                   </button>
                 </div>
                 <div className="code-block-container">
                   <pre>
                     <code>
-                      <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'lensjs/react'</span><span className="p">;</span>{'\n'}
-                      <span className="k">import</span> <span className="s">'lensjs/styles.css'</span><span className="p">;</span>{'\n\n'}
+                      <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n'}
+                      <span className="k">import</span> <span className="s">'@alikaner/lensjs/styles.css'</span><span className="p">;</span>{'\n\n'}
                       <span className="k">export</span> <span className="k">default</span> <span className="k">function</span> <span className="f">App</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
                       {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
                       {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
@@ -761,14 +761,14 @@ function App() {
                 </p>
                 <div className="code-block-header">
                   <span>Dynamic Theme Config (JSX/TSX)</span>
-                  <button className="copy-btn-small" onClick={() => handleCopy(`import { LensProvider, LensImage } from 'lensjs/react';\n\nfunction App() {\n  const [theme, setTheme] = useState('dark');\n\n  // Sync lens config variables dynamically with JS theme state\n  const lensConfig = {\n    lensSize: theme === 'dark' ? 180 : 130,\n    lensShape: (theme === 'dark' ? 'square' : 'circle') as const,\n    intensity: 1.2\n  };\n\n  return (\n    <LensProvider value={lensConfig}>\n      <div className="app-content">\n        <LensImage src="/avatar.jpg" effect="invert" />\n      </div>\n    </LensProvider>\n  );\n}`, 'doc-lens-provider')}>
+                  <button className="copy-btn-small" onClick={() => handleCopy(`import { LensProvider, LensImage } from '@alikaner/lensjs/react';\n\nfunction App() {\n  const [theme, setTheme] = useState('dark');\n\n  // Sync lens config variables dynamically with JS theme state\n  const lensConfig = {\n    lensSize: theme === 'dark' ? 180 : 130,\n    lensShape: (theme === 'dark' ? 'square' : 'circle') as const,\n    intensity: 1.2\n  };\n\n  return (\n    <LensProvider value={lensConfig}>\n      <div className="app-content">\n        <LensImage src="/avatar.jpg" effect="invert" />\n      </div>\n    </LensProvider>\n  );\n}`, 'doc-lens-provider')}>
                     Copy
                   </button>
                 </div>
                 <div className="code-block-container">
                   <pre>
                     <code>
-                      <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensProvider</span><span className="p">,</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                      <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensProvider</span><span className="p">,</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
                       <span className="k">function</span> <span className="f">App</span><span className="p">()</span> <span className="p">{"{"}</span>{'\n'}
                       {'  '}<span className="k">const</span> <span className="p">[</span><span className="pr">theme</span><span className="p">]</span> <span className="p">=</span> <span className="f">useState</span><span className="p">(</span><span className="s">'dark'</span><span className="p">);</span>{'\n\n'}
                       {'  '}<span className="co">// Sync lens variables dynamically with JS theme state</span>{'\n'}

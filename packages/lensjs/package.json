@@ -1,5 +1,5 @@
 {
-  "name": "lensjs",
+  "name": "@alikaner/lensjs",
   "version": "1.0.0",
   "description": "Image processing library for lens images",
   "main": "./dist/index.js",
