@@ -9,7 +9,7 @@
   "scripts": {
     "build:lib": "npm run build --workspace=packages/lensjs",
     "build:docs": "npm run build --workspace=apps/docs",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build:lib && npm run build:docs",
     "dev:docs": "npm run dev --workspace=apps/docs",
     "test": "npm run test --workspaces --if-present"
   }
