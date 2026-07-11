@@ -227,7 +227,8 @@ pre::-webkit-scrollbar-track,
   align-items: center;
   gap: 12px;
 }
-.header-actions .github-btn {
+.header-actions .github-btn,
+.header-actions .npm-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -245,7 +246,12 @@ pre::-webkit-scrollbar-track,
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.2);
 }
-.github-svg {
+.header-actions .npm-btn:hover {
+  background: rgba(203, 56, 55, 0.1);
+  border-color: rgba(203, 56, 55, 0.4);
+}
+.github-svg,
+.npm-svg {
   width: 18px;
   height: 18px;
 }

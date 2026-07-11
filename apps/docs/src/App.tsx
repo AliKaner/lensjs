@@ -374,6 +374,12 @@ function App() {
             </svg>
             GitHub
           </a>
+          <a href="https://www.npmjs.com/package/@alikaner/lensjs" target="_blank" rel="noopener noreferrer" className="npm-btn">
+            <svg className="icon npm-svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M0 0h24v24H0V0zm19 5h-8v10H6V5H3v14h9v-4h4v4h3V5z" />
+            </svg>
+            npm
+          </a>
         </div>
       </header>
 
