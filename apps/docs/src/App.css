@@ -32,6 +32,11 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+  accent-color: var(--glow-accent);
+}
+
 body {
   background-color: var(--bg-main);
   color: var(--text-primary);
@@ -40,6 +45,72 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   line-height: 1.5;
+}
+
+/* Text selection matches the brand glow */
+::selection {
+  background: rgba(192, 132, 252, 0.35);
+  color: var(--text-bright);
+}
+
+/* ---------------------------------------------------- */
+/* Themed scrollbars                                     */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 132, 252, 0.35) rgba(255, 255, 255, 0.04);
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(170, 59, 255, 0.5), rgba(192, 132, 252, 0.3));
+  border-radius: 8px;
+  border: 2px solid var(--bg-main);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(170, 59, 255, 0.85), rgba(192, 132, 252, 0.6));
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Slimmer, borderless bars inside code blocks, tables and the docs sidebar */
+pre::-webkit-scrollbar,
+.table-wrapper::-webkit-scrollbar,
+.docs-sidebar::-webkit-scrollbar,
+.code-block-container::-webkit-scrollbar,
+.code-block-container-compact::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+pre::-webkit-scrollbar-thumb,
+.table-wrapper::-webkit-scrollbar-thumb,
+.docs-sidebar::-webkit-scrollbar-thumb,
+.code-block-container::-webkit-scrollbar-thumb,
+.code-block-container-compact::-webkit-scrollbar-thumb {
+  border: none;
+  border-radius: 6px;
+  background: rgba(192, 132, 252, 0.3);
+}
+pre::-webkit-scrollbar-track,
+.table-wrapper::-webkit-scrollbar-track,
+.docs-sidebar::-webkit-scrollbar-track,
+.code-block-container::-webkit-scrollbar-track,
+.code-block-container-compact::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Docs anchor targets stop below the sticky header */
+.docs-body section {
+  scroll-margin-top: 110px;
 }
 
 /* Background glows */
