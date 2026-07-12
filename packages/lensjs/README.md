@@ -1,38 +1,24 @@
-# 📷 @alikaner/lensjs
+# lensjs
 
-A lightweight, high-performance interactive image visual effects wrapper for React and Next.js applications. Apply glassmorphic glare sweeps, shifting neon borders, cursor-following color inverters, double-exposure image reveals, and 12+ animated canvas filter shaders with a simple declarative JSX tag.
+Hover effects, cursor lenses and color filters for images in React. One `LensImage` component, 30 effects, 18 color presets, zero dependencies.
 
-Now supports **arbitrary HTML elements** wrapping (e.g. glitching buttons, glowing text, glassmorphic cards) and **dynamic configuration themes**!
+Some effects are plain CSS (zoom, neon, tilt), some are real per-pixel image processing rendered to a canvas overlay (vortex, glitch, fisheye, halftone...). The pixel filters are also exported as standalone functions if you want to use them outside React.
 
----
+Live demos and full docs: [lensjs on Vercel](https://lensjs-alikaners-projects.vercel.app)
 
-## ✨ Features
-
-- **Zero-Dependency Core**: Lightweight footprint driven by high-performance CSS transforms and vanilla Canvas pixel shaders.
-- **30 Interactive Hover Effects**: Cursor lenses (magnify, invert, reveal, blur, grayscale), canvas pixel distortions (vortex, glitch, wave, fisheye, melt, halftone…), and cinematic CSS motion (tilt-3d, ken-burns, spotlight, flip-reveal, scanlines…).
-- **18 Movie-Inspired Filter Presets**: Permanent cinematic color grades (Blade Runner, Matrix, Cyberpunk, Twilight, Noir, Sunset, Duotones, and Bloom) that compose seamlessly with hover effects.
-- **Fine-Tuning Props**: Scale any effect with `intensity` (0–2), and control cursor lenses with `lensSize` and `lensShape` (circle/square).
-- **HTML Element Wrapping**: Nest any child node (like buttons, spans, or custom cards) to apply CSS scaling, filters, and dynamic glitch animations on hover.
-- **Global Context Provider**: Control and update default lens sizes, shapes, and intensities dynamically using React context.
-- **Next.js & SSR Compatible**: Safe hydration, zero client-side load flashes, and fully responsive layouts.
-
----
-
-## 🚀 Installation
+## Install
 
 ```bash
 npm install @alikaner/lensjs
 ```
 
-Ensure you import the core CSS file once in your application entry point (e.g., `main.tsx`, `App.tsx`, or `_app.tsx`):
+Import the stylesheet once, anywhere in your app (entry point is the usual place):
 
 ```tsx
 import '@alikaner/lensjs/styles.css';
 ```
 
----
-
-## 📖 Quick Start
+## Usage
 
 ```tsx
 import { LensImage } from '@alikaner/lensjs/react';
@@ -42,7 +28,7 @@ export default function Banner() {
   return (
     <LensImage
       src="/banner.jpg"
-      alt="Interactive Banner"
+      alt="Interactive banner"
       effect="glare"
       filter="bladerunner"
       intensity={1.2}
@@ -51,134 +37,99 @@ export default function Banner() {
 }
 ```
 
-### Wrapping Custom Elements (e.g. Glitch Buttons)
-You can wrap arbitrary text or buttons inside the tag to trigger CSS hover effects (like zoom, filters, glows) and custom text glitch keyframes:
+Works in Next.js App Router out of the box; the component is already marked `"use client"`, so you can place it inside server components without wrapping anything.
+
+You can also wrap elements other than images. CSS effects (zoom, neon, tilt-3d, heart-beat...) work on any child; `glitch` falls back to a text-glitch animation. Canvas effects need an actual image, so they stay off in this mode.
 
 ```tsx
-import { LensImage } from '@alikaner/lensjs/react';
-
-export default function ActionButton() {
-  return (
-    <LensImage effect="glitch">
-      <button className="primary-btn">
-        GLITCH ACTION
-      </button>
-    </LensImage>
-  );
-}
+<LensImage effect="glitch">
+  <button className="primary-btn">Launch</button>
+</LensImage>
 ```
 
----
-
-## 🛠️ API Reference
-
-### Props Schema
+## Props
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `effect` | `LensEffect` | `undefined` | Interactive hover effect (`'glare'`, `'glass'`, `'neon'`, `'invert'`, `'reveal'`, `'glitch'`, `'vortex'`, `'wave'`, etc.). |
-| `filter` | `LensFilter` | `undefined` | Cinematic permanent color preset (`'bladerunner'`, `'matrix'`, `'cyberpunk'`, `'dreamy'`, etc.). |
-| `revealSrc` | `string` | `undefined` | Image source shown inside the cursor lens boundary when `effect="reveal"`. |
-| `intensity` | `number` | `1` | Visual effect strength scalar (`0.0` to `2.0`). |
-| `lensSize` | `number` | `130` | Diameter (in pixels) of the circular/square lens mask. |
-| `lensShape` | `'circle' \| 'square'`| `'circle'` | Mask frame boundary shape. |
-| `children` | `ReactNode` | `undefined` | Wrap custom HTML elements instead of rendering an `<img>` tag. |
-| `src`, `alt`, ... | `ImgAttributes` | `undefined` | Standard HTML image properties when rendering images. |
+| `effect` | `LensEffect` | – | Hover effect to apply. Full list below. |
+| `filter` | `LensFilter` | – | Color grade preset. Always on, combines with any effect. |
+| `revealSrc` | `string` | – | Second image for `reveal` (shows through the lens) and `flip-reveal` (card back). |
+| `intensity` | `number` | `1` | Effect strength, 0 to 2. 0 disables, 2 doubles. |
+| `lensSize` | `number` | `130` | Lens diameter in px for the cursor lens effects. |
+| `lensShape` | `'circle' \| 'square'` | `'circle'` | Lens shape. |
+| `children` | `ReactNode` | – | Wrap an element instead of rendering an `<img>`. |
+| `src`, `alt`, ... | img attributes | – | Everything a normal `<img>` accepts. |
 
----
+## Effects
 
-## 🎨 Interactive Effects List
+CSS effects:
 
-### CSS Motion & Framing
-*   `zoom`: Smooth scale magnification on hover.
-*   `glare`: Silky dynamic light sweep reflection.
-*   `glass`: Frosted glass borders, background filters, and soft drop shadow lifts.
-*   `blur-vignette`: Center focus with soft blur and a dark vignette ring.
-*   `neon`: Glowing shifting border spotlights.
-*   `shadow`: Smooth drop shadow lift.
-*   `heart-beat`: Rhythmic, elastic scaling pulse.
-*   `invert-full`: Inverts colors of the entire image on hover.
-*   `tilt-3d`: Perspective card tilt that leans towards the cursor.
-*   `ken-burns`: Slow cinematic pan & zoom while hovered.
-*   `flip-reveal`: 3D card flip revealing `revealSrc` on the back face.
-*   `spotlight`: Cursor-following light beam; the rest fades to black.
-*   `scanlines`: Retro CRT/VHS horizontal line overlay.
+`zoom`, `glare` (light sweep), `glass` (frosted frame), `blur-vignette`, `neon`, `shadow`, `heart-beat`, `invert-full`, `tilt-3d` (leans toward the cursor), `ken-burns` (slow pan and zoom), `flip-reveal` (3D flip to `revealSrc`), `spotlight` (light beam follows the cursor), `scanlines`
 
-### Cursor Lens Masking
-*   `invert`: Cursor-following lens that inverts all colors beneath it.
-*   `reveal`: Double exposure — `revealSrc` shows through the cursor lens.
-*   `magnify`: Classic e-commerce magnifying glass zoom under the cursor.
-*   `blur-lens`: The image blurs on hover while the lens stays sharp (focus ring).
-*   `grayscale-lens`: Black & white image; true colors show through the lens.
+Cursor lenses (all follow the mouse, sized with `lensSize`):
 
-### Canvas Pixel Processing (real per-pixel image processing)
-*   `glitch`: High-frequency RGB channel separations and displaced raster slices.
-*   `vortex`: Twisting whirlpool coordinate distortion around the center.
-*   `wave`: Rolling fluid water wave displacement ripples.
-*   `fisheye`: Wide-angle barrel bulge magnifying the center.
-*   `noise`: Live animated analog film grain.
-*   `pixelate`: Growing mosaic blocks.
-*   `denoise`: Gaussian smoothing that softens grain and artifacts.
-*   `resolution-boost`: Unsharp-mask sharpening for crisper perceived detail.
-*   `chromatic-aberration`: Radial RGB channel displacement.
-*   `halftone`: Retro newspaper dot-matrix shading.
-*   `posterize`: Flat color binning.
-*   `melt`: Liquid vertical pixel drip animation.
+`invert` (negative colors under the lens), `reveal` (second image under the lens), `magnify` (loupe zoom), `blur-lens` (image blurs, lens stays sharp), `grayscale-lens` (b&w image, color under the lens)
 
-> **CORS note:** canvas effects must read pixel data. Images from another domain need CORS enabled on the server (LensJS requests them with `crossOrigin="anonymous"` automatically). If pixel access is blocked, the effect silently stays off and the image renders normally.
+Canvas pixel effects:
 
----
+`vortex` (swirl), `glitch`, `wave`, `fisheye`, `noise` (animated grain), `pixelate`, `denoise`, `resolution-boost` (unsharp mask; sharpens edges, doesn't invent pixels), `chromatic-aberration`, `halftone`, `posterize`, `melt`
 
-## 🔬 Core API — use the pixel filters anywhere
+Canvas effects read pixel data, so cross-origin images need CORS on the server. The component requests them with `crossOrigin="anonymous"` on its own. If pixel access is blocked the effect just stays off and the image renders normally.
 
-All canvas filters are exported as pure, framework-agnostic functions operating on raw RGBA buffers (`PixelData` is structurally compatible with canvas `ImageData`). You can run them in your own canvas pipelines, web workers, or Node:
+## Color filter presets
 
-```ts
-import { applyVortex, applyHalftone, type PixelData } from '@alikaner/lensjs';
+Set with the `filter` prop, inspired mostly by movie color grades:
 
-const ctx = canvas.getContext('2d')!;
-const src = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const dst = ctx.createImageData(canvas.width, canvas.height);
+`bladerunner`, `matrix`, `noir`, `mad-max`, `twilight-1`, `twilight-2`, `twilight-3`, `cyberpunk`, `vintage`, `vintage-high`, `sunset`, `oceanic`, `dreamy`, `amaro`, `duotone-purple`, `duotone-red`, `duotone-cyan`, `grayscale`
 
-applyVortex(src, dst, 2.2);           // swirl angle in radians
-// applyHalftone(src, dst, 8, 1);     // block size, blend strength
-ctx.putImageData(dst, 0, 0);
-```
+## Global defaults
 
-Exported functions: `applyVortex`, `applyNoise`, `applyGlitch`, `applyFisheye`, `applyPixelate`, `applyDenoise`, `applySharpen`, `applyWave`, `applyChromatic`, `applyHalftone`, `applyPosterize`, `applyMelt` — plus their tuning constants (`VORTEX_MAX_STRENGTH`, `NOISE_MAX_AMOUNT`, …).
-
----
-
-## 🌈 Global Settings & Theme Overrides
-
-Use the `LensProvider` context to configure global defaults across your entire application. This allows you to sync lens bounds, sizes, or shapes dynamically with your app's light/dark mode theme:
+`LensProvider` sets defaults for every `LensImage` under it. Component props still win. Handy for syncing lens settings with a theme:
 
 ```tsx
 import { LensProvider, LensImage } from '@alikaner/lensjs/react';
-import { useState } from 'react';
 
 function App() {
-  const [theme] = useState('dark');
-
-  // Change defaults dynamically based on theme status
-  const globalLensConfig = {
-    lensSize: theme === 'dark' ? 180 : 130,
-    lensShape: theme === 'dark' ? 'square' : 'circle',
-    intensity: 1.2
-  };
-
   return (
-    <LensProvider value={globalLensConfig}>
-      <div className="app-content">
-        <LensImage src="/hero.jpg" effect="invert" />
-      </div>
+    <LensProvider value={{ lensSize: 180, intensity: 1.2 }}>
+      <LensImage src="/hero.jpg" effect="invert" />
     </LensProvider>
   );
 }
 ```
 
----
+## Using the pixel filters directly
 
-## 📄 License
+Every canvas filter is a pure function over raw RGBA buffers, no React involved. `PixelData` is structurally the same as canvas `ImageData`, so this works in your own canvas code, web workers or Node:
+
+```ts
+import { applyVortex } from '@alikaner/lensjs';
+
+const ctx = canvas.getContext('2d');
+const src = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const dst = ctx.createImageData(canvas.width, canvas.height);
+
+applyVortex(src, dst, 2.2); // swirl angle in radians
+ctx.putImageData(dst, 0, 0);
+```
+
+Available: `applyVortex`, `applyNoise`, `applyGlitch`, `applyFisheye`, `applyPixelate`, `applyDenoise`, `applySharpen`, `applyWave`, `applyChromatic`, `applyHalftone`, `applyPosterize`, `applyMelt`.
+
+## Styling
+
+The wrapper gets a `.lens-image-wrapper` class plus `data-lens-effect` / `data-lens-filter` attributes, so everything is overridable from your own CSS. Lens position and size are exposed as `--lens-x`, `--lens-y` and `--lens-size` custom properties.
+
+To respect reduced-motion preferences, one rule in your stylesheet is enough:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .lens-image-wrapper, .lens-image-wrapper * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+```
+
+## License
 
 MIT © [Ali Kaner](https://github.com/AliKaner)
