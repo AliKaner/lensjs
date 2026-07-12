@@ -389,7 +389,7 @@ function App() {
             {/* Hero Section */}
             <section className="hero-layout">
               <div className="hero-text-side">
-                <div className="version-tag">v1.1.0 is now live</div>
+                <div className="version-tag">v1.2.0 is now live</div>
                 <h1>Stunning <span className="gradient-text">Interactive Lens Effects</span> for React</h1>
                 <p className="hero-subtitle">
                   A lightweight, zero-dependency utility package to wrap your images in premium, glassmorphic reflections, interactive neon bounds, and silky-smooth hover scaling.
