@@ -26,6 +26,10 @@ The site imports the package's built `dist`, so after changing package source ru
 
 The style test suite fails if an effect has no CSS rule, so step 1 is hard to forget.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the effect-adding walkthrough and PR notes.
+
 ## Publishing
 
 Bump the version in `packages/lensjs/package.json` and the `version` export in `src/index.ts` (a test keeps them in sync), then:
