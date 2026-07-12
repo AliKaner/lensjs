@@ -1601,6 +1601,90 @@ pre::-webkit-scrollbar-track,
   }
 }
 
+/* Mobile: tighter container, stacked controls, readable code blocks */
+@media (max-width: 640px) {
+  .app-container {
+    padding: 0 18px;
+  }
+  .main-content {
+    padding: 24px 0;
+  }
+
+  /* Sandbox controls */
+  .effects-selector-grid-compact {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lens-customizer-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Code blocks: smaller type, keep horizontal scroll inside the block */
+  .code-block-container pre,
+  .code-block-container-compact pre {
+    font-size: 12px;
+  }
+  .docs-body h2 {
+    font-size: 24px;
+  }
+  .docs-h3 {
+    font-size: 16px;
+  }
+
+  /* Examples & feature cards get comfortable spacing */
+  .examples-grid,
+  .features-grid {
+    gap: 20px;
+  }
+
+  /* Search modal uses the whole width */
+  .search-overlay {
+    padding: 8vh 12px 16px;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 28px 0;
+  }
+}
+
+/* Very narrow phones: compact header actions */
+@media (max-width: 420px) {
+  .logo-text {
+    font-size: 19px;
+  }
+  .header-actions {
+    gap: 8px;
+  }
+  .header-actions .github-btn,
+  .header-actions .npm-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .search-trigger {
+    padding: 8px 10px;
+  }
+  .hero-layout h1 {
+    font-size: 30px;
+    letter-spacing: -0.5px;
+  }
+  .version-tag {
+    font-size: 11px;
+  }
+}
+
+/* Touch devices: hovering is tapping — hint labels and bigger hit areas */
+@media (hover: none) {
+  .preview-label::after {
+    content: ' — tap & drag on touch';
+  }
+  .nav-link,
+  .selector-btn-compact,
+  .preset-img-btn-compact {
+    min-height: 40px;
+  }
+}
+
 /* Mobile Docs Sidebar - horizontal scrollable pill buttons */
 @media (max-width: 768px) {
   .docs-layout {

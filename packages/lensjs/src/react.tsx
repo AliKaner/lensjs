@@ -166,11 +166,18 @@ function useCanvasEffect(
     img.addEventListener('load', reset);
     wrapper.addEventListener('mouseenter', enter);
     wrapper.addEventListener('mouseleave', leave);
+    // Touch devices have no hover: run the effect while a finger is down
+    wrapper.addEventListener('touchstart', enter, { passive: true });
+    wrapper.addEventListener('touchend', leave);
+    wrapper.addEventListener('touchcancel', leave);
     return () => {
       cancelAnimationFrame(raf);
       img.removeEventListener('load', reset);
       wrapper.removeEventListener('mouseenter', enter);
       wrapper.removeEventListener('mouseleave', leave);
+      wrapper.removeEventListener('touchstart', enter);
+      wrapper.removeEventListener('touchend', leave);
+      wrapper.removeEventListener('touchcancel', leave);
     };
   }, [effect, src, intensity, wrapperRef, imgRef, canvasRef]);
 }
@@ -212,17 +219,27 @@ export function LensImage({
     ...(activeLensSize !== undefined ? ({ '--lens-size': `${activeLensSize}px` } as React.CSSProperties) : null),
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const updateLensPosition = (clientX: number, clientY: number) => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     const rect = wrapper.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     wrapper.style.setProperty('--lens-x', `${x}px`);
     wrapper.style.setProperty('--lens-y', `${y}px`);
     // Normalized offsets (-1..1) from the center, used by tilt-3d
     wrapper.style.setProperty('--lens-dx', ((x / rect.width) * 2 - 1).toFixed(3));
     wrapper.style.setProperty('--lens-dy', ((y / rect.height) * 2 - 1).toFixed(3));
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    updateLensPosition(e.clientX, e.clientY);
+  };
+
+  // Touch devices: drag a finger to move the lens
+  const handleTouch = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    if (touch) updateLensPosition(touch.clientX, touch.clientY);
   };
 
   const usesViewport =
@@ -236,6 +253,8 @@ export function LensImage({
       data-lens-filter={filter}
       data-lens-shape={activeLensShape}
       onMouseMove={handleMouseMove}
+      onTouchStart={handleTouch}
+      onTouchMove={handleTouch}
       style={{
         ...wrapperStyle,
         ...(children ? style : null)
