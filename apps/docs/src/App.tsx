@@ -95,7 +95,7 @@ function CodeBlock({ title, copyText, children }: CodeBlockProps) {
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('landing');
-  const [sandboxEffect, setSandboxEffect] = useState<LensEffect>('zoom');
+  const [sandboxEffect, setSandboxEffect] = useState<LensEffect | 'none'>('zoom');
   const [sandboxFilter, setSandboxFilter] = useState<LensFilter | 'none'>('none');
   const [sandboxImg, setSandboxImg] = useState<string>('/lotr.jpg');
   const [customUrl, setCustomUrl] = useState<string>('');
@@ -123,7 +123,7 @@ function App() {
   };
 
   const lensEffects: LensEffect[] = ['invert', 'reveal', 'magnify', 'blur-lens', 'grayscale-lens', 'spotlight'];
-  const isLensEffect = lensEffects.includes(sandboxEffect);
+  const isLensEffect = sandboxEffect !== 'none' && lensEffects.includes(sandboxEffect);
   const needsRevealSrc = sandboxEffect === 'reveal' || sandboxEffect === 'flip-reveal';
 
   const sandboxCodeSrc = sandboxImg.startsWith('/') ? '/your-image.jpg' : sandboxImg;
@@ -171,13 +171,14 @@ function App() {
     { id: 'heart-beat', name: 'Heart Beat', desc: 'Rhythmic double-pulse scale, like a heartbeat' },
   ] as const;
 
-  const filtersList: { id: LensFilter | 'none'; name: string }[] = [
+  const filtersList: { id: LensFilter | 'none'; name: string; short?: string }[] = [
     { id: 'none', name: 'None' },
     { id: 'blur-soft', name: 'Soft Blur (Subtle 2px)' },
     { id: 'blur', name: 'Blur (Standard 5px)' },
     { id: 'blur-heavy', name: 'Heavy Blur (Frosted 12px)' },
-    { id: 'motion-blur', name: 'Motion Blur (Horizontal)' },
-    { id: 'motion-blur-vertical', name: 'Motion Blur (Vertical)' },
+    { id: 'motion-blur', name: 'Motion Blur (Horizontal)', short: 'Motion Blur X' },
+    { id: 'motion-blur-vertical', name: 'Motion Blur (Vertical)', short: 'Motion Blur Y' },
+    { id: 'liquid-glass', name: 'Liquid Glass (Frosted Vivid)' },
     { id: 'bladerunner', name: 'Blade Runner (Teal & Orange)' },
     { id: 'cyberpunk', name: 'Cyberpunk (Pink & Cyan)' },
     { id: 'vintage', name: 'Vintage (Warm Polaroid)' },
@@ -560,7 +561,7 @@ function App() {
                   <LensImage
                     src={sandboxImg}
                     alt="Sandbox Preview"
-                    effect={sandboxEffect}
+                    effect={sandboxEffect === 'none' ? undefined : sandboxEffect}
                     filter={sandboxFilter === 'none' ? undefined : sandboxFilter}
                     revealSrc={needsRevealSrc ? sandboxRevealSrc : undefined}
                     intensity={sandboxIntensity}
@@ -640,6 +641,13 @@ function App() {
                   {expandedGroups.effects && (
                     <div className="accordion-content">
                       <div className="effects-selector-grid-compact">
+                        <button
+                          className={`selector-btn-compact ${sandboxEffect === 'none' ? 'active' : ''}`}
+                          onClick={() => setSandboxEffect('none')}
+                          title="No hover effect — plain image (color filters still apply)"
+                        >
+                          None
+                        </button>
                         {effectsList.map((eff) => (
                           <button
                             key={eff.id}
@@ -654,7 +662,9 @@ function App() {
 
                       {/* Display description for currently hovered/selected effect */}
                       <p className="effect-desc-inline">
-                        {effectsList.find(e => e.id === sandboxEffect)?.desc}
+                        {sandboxEffect === 'none'
+                          ? 'No hover effect — the plain image, with any color filter still applied'
+                          : effectsList.find(e => e.id === sandboxEffect)?.desc}
                       </p>
 
                       <div className="control-subgroup">
@@ -717,15 +727,18 @@ function App() {
                     <div className="accordion-content">
                       <div className="control-subgroup">
                         <label className="control-sublabel">Color Filter Preset</label>
-                        <select 
-                          className="custom-select-element"
-                          value={sandboxFilter} 
-                          onChange={(e) => setSandboxFilter(e.target.value as any)}
-                        >
+                        <div className="filters-selector-grid-compact">
                           {filtersList.map(f => (
-                            <option key={f.id} value={f.id}>{f.name}</option>
+                            <button
+                              key={f.id}
+                              className={`selector-btn-compact ${sandboxFilter === f.id ? 'active' : ''}`}
+                              onClick={() => setSandboxFilter(f.id)}
+                              title={f.name}
+                            >
+                              {f.short ?? f.name.replace(/\s*\(.*\)$/, '')}
+                            </button>
                           ))}
-                        </select>
+                        </div>
                       </div>
 
                       <div className="control-subgroup" style={{ marginTop: 12 }}>
@@ -773,7 +786,7 @@ function App() {
                         <button 
                           className="copy-code-btn-compact"
                           onClick={() => handleCopy(
-                            `import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"\n      effect="${sandboxEffect}"${needsRevealSrc ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ ${sandboxCodeStyle} }}\n    />\n  );\n}`,
+                            `import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"${sandboxEffect !== 'none' ? `\n      effect="${sandboxEffect}"` : ''}${needsRevealSrc ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ ${sandboxCodeStyle} }}\n    />\n  );\n}`,
                             'sandbox-code'
                           )}
                         >
@@ -791,7 +804,9 @@ function App() {
                             {'    '}<span className="p">&lt;</span><span className="c">LensImage</span>{'\n'}
                             {'      '}<span className="a">src</span><span className="p">=</span><span className="s">"{sandboxCodeSrc.length > 40 ? sandboxCodeSrc.substring(0, 37) + '...' : sandboxCodeSrc}"</span>{'\n'}
                             {'      '}<span className="a">alt</span><span className="p">=</span><span className="s">"Demo Image"</span>{'\n'}
-                            {'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"{sandboxEffect}"</span>{'\n'}
+                            {sandboxEffect !== 'none' && (
+                              <>{'      '}<span className="a">effect</span><span className="p">=</span><span className="s">"{sandboxEffect}"</span>{'\n'}</>
+                            )}
                             {needsRevealSrc && (
                               <>{'      '}<span className="a">revealSrc</span><span className="p">=</span><span className="s">"/second-image.jpg"</span>{'\n'}</>
                             )}
@@ -1369,7 +1384,7 @@ ctx.putImageData(dst, 0, 0);`}
                       </tr>
                       <tr>
                         <td><code className="prop-name">filter</code></td>
-                        <td><code>'bladerunner' | 'cyberpunk' | 'vintage' | 'sunset' | 'oceanic' | 'duotone-purple' | 'duotone-red' | 'duotone-cyan' | 'dreamy' | 'vintage-high' | 'amaro' | 'twilight-1' | 'twilight-2' | 'twilight-3' | 'matrix' | 'noir' | 'mad-max' | 'grayscale' | 'blur-soft' | 'blur' | 'blur-heavy' | 'motion-blur' | 'motion-blur-vertical'</code></td>
+                        <td><code>'bladerunner' | 'cyberpunk' | 'vintage' | 'sunset' | 'oceanic' | 'duotone-purple' | 'duotone-red' | 'duotone-cyan' | 'dreamy' | 'vintage-high' | 'amaro' | 'twilight-1' | 'twilight-2' | 'twilight-3' | 'matrix' | 'noir' | 'mad-max' | 'grayscale' | 'blur-soft' | 'blur' | 'blur-heavy' | 'motion-blur' | 'motion-blur-vertical' | 'liquid-glass'</code></td>
                         <td><code>-</code></td>
                         <td>Movie-inspired color grading preset. Always applied and composes with any <code>effect</code>.</td>
                       </tr>
@@ -1572,6 +1587,7 @@ export default function ColorFilters() {
                       <tr><td><code>blur-heavy</code></td><td>Frosted Glass</td><td>Strong 12px gaussian blur</td></tr>
                       <tr><td><code>motion-blur</code></td><td>Speed Pan</td><td>Horizontal-only directional blur</td></tr>
                       <tr><td><code>motion-blur-vertical</code></td><td>Vertical Sweep</td><td>Vertical-only directional blur</td></tr>
+                      <tr><td><code>liquid-glass</code></td><td>Liquid Glass</td><td>Frosted-pane blur with vivid, saturated color glowing through</td></tr>
                     </tbody>
                   </table>
                 </div>

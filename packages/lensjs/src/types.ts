@@ -54,7 +54,8 @@ export type LensFilter =
   | 'blur'
   | 'blur-heavy'
   | 'motion-blur'
-  | 'motion-blur-vertical';
+  | 'motion-blur-vertical'
+  | 'liquid-glass';
 
 /** Raw RGBA pixel buffer — structurally compatible with canvas ImageData. */
 export interface PixelData {

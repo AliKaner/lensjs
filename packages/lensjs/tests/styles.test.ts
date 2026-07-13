@@ -18,6 +18,7 @@ const filters = [
   'duotone-purple', 'duotone-red', 'duotone-cyan',
   'dreamy', 'vintage-high', 'amaro',
   'blur-soft', 'blur', 'blur-heavy', 'motion-blur', 'motion-blur-vertical',
+  'liquid-glass',
 ] as const;
 
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');

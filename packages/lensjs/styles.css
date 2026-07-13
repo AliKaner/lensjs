@@ -574,3 +574,10 @@
 .lens-image-wrapper[data-lens-filter="motion-blur-vertical"] > :not(canvas):not(.lens-reveal-img) {
   filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='lens-mb-y'><feGaussianBlur in='SourceGraphic' stdDeviation='0,10'/></filter></svg>#lens-mb-y");
 }
+
+/* Liquid glass — frosted-pane look: heavy blur with juiced-up color glowing through,
+   lifted brightness and softened contrast (filter-only so it composes with any effect) */
+.lens-image-wrapper[data-lens-filter="liquid-glass"] img,
+.lens-image-wrapper[data-lens-filter="liquid-glass"] > :not(canvas):not(.lens-reveal-img) {
+  filter: blur(7px) saturate(1.9) brightness(1.08) contrast(0.88);
+}

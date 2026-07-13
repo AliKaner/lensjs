@@ -1066,22 +1066,14 @@ pre::-webkit-scrollbar-track,
   letter-spacing: 0.5px;
 }
 
-/* Custom Dropdown select */
-.custom-select-element {
-  background: #0d0f17;
-  border: 1px solid var(--border-subtle);
-  color: var(--text-bright);
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.2s;
-  width: 100%;
-}
-.custom-select-element:focus {
-  border-color: var(--glow-accent);
+/* Filter preset chip grid (replaces the old dropdown) */
+.filters-selector-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .preset-images-row-compact {
