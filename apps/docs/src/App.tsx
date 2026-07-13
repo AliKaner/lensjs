@@ -97,6 +97,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('landing');
   const [sandboxEffect, setSandboxEffect] = useState<LensEffect | 'none'>('zoom');
   const [sandboxFilter, setSandboxFilter] = useState<LensFilter | 'none'>('none');
+  const [sandboxFilterStrength, setSandboxFilterStrength] = useState<number>(1);
   const [sandboxImg, setSandboxImg] = useState<string>('/lotr.jpg');
   const [customUrl, setCustomUrl] = useState<string>('');
   const [sandboxIntensity, setSandboxIntensity] = useState<number>(1);
@@ -125,6 +126,13 @@ function App() {
   const lensEffects: LensEffect[] = ['invert', 'reveal', 'magnify', 'blur-lens', 'grayscale-lens', 'spotlight'];
   const isLensEffect = sandboxEffect !== 'none' && lensEffects.includes(sandboxEffect);
   const needsRevealSrc = sandboxEffect === 'reveal' || sandboxEffect === 'flip-reveal';
+
+  // Blur-family filters scale with the filterIntensity prop; base px is the 1× blur radius
+  const blurFilterBase: Partial<Record<LensFilter, number>> = {
+    'blur-soft': 2, blur: 5, 'blur-heavy': 12, 'liquid-glass': 7,
+  };
+  const blurBasePx = sandboxFilter !== 'none' ? blurFilterBase[sandboxFilter] : undefined;
+  const isBlurFilter = blurBasePx !== undefined;
 
   const sandboxCodeSrc = sandboxImg.startsWith('/') ? '/your-image.jpg' : sandboxImg;
   const sandboxRevealSrc = sandboxImg === '/ikiru.jpg' ? '/lotr.jpg' : '/ikiru.jpg';
@@ -563,6 +571,7 @@ function App() {
                     alt="Sandbox Preview"
                     effect={sandboxEffect === 'none' ? undefined : sandboxEffect}
                     filter={sandboxFilter === 'none' ? undefined : sandboxFilter}
+                    filterIntensity={isBlurFilter ? sandboxFilterStrength : undefined}
                     revealSrc={needsRevealSrc ? sandboxRevealSrc : undefined}
                     intensity={sandboxIntensity}
                     lensSize={isLensEffect ? sandboxLensSize : undefined}
@@ -741,6 +750,24 @@ function App() {
                         </div>
                       </div>
 
+                      {isBlurFilter && (
+                        <div className="control-subgroup" style={{ marginTop: 12 }}>
+                          <label className="control-sublabel">
+                            Blur Strength: {sandboxFilterStrength.toFixed(1)}× (~{Math.round(blurBasePx * sandboxFilterStrength)}px)
+                          </label>
+                          <div className="slider-row">
+                            <input
+                              type="range"
+                              min={0.2}
+                              max={8}
+                              step={0.1}
+                              value={sandboxFilterStrength}
+                              onChange={(e) => setSandboxFilterStrength(Number(e.target.value))}
+                            />
+                          </div>
+                        </div>
+                      )}
+
                       <div className="control-subgroup" style={{ marginTop: 12 }}>
                         <label className="control-sublabel">Preset Images</label>
                         <div className="preset-images-row-compact">
@@ -786,7 +813,7 @@ function App() {
                         <button 
                           className="copy-code-btn-compact"
                           onClick={() => handleCopy(
-                            `import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"${sandboxEffect !== 'none' ? `\n      effect="${sandboxEffect}"` : ''}${needsRevealSrc ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ ${sandboxCodeStyle} }}\n    />\n  );\n}`,
+                            `import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"${sandboxEffect !== 'none' ? `\n      effect="${sandboxEffect}"` : ''}${needsRevealSrc ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${isBlurFilter && sandboxFilterStrength !== 1 ? `\n      filterIntensity={${sandboxFilterStrength}}` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ ${sandboxCodeStyle} }}\n    />\n  );\n}`,
                             'sandbox-code'
                           )}
                         >
@@ -812,6 +839,9 @@ function App() {
                             )}
                             {sandboxFilter !== 'none' && (
                               <>{'      '}<span className="a">filter</span><span className="p">=</span><span className="s">"{sandboxFilter}"</span>{'\n'}</>
+                            )}
+                            {isBlurFilter && sandboxFilterStrength !== 1 && (
+                              <>{'      '}<span className="a">filterIntensity</span><span className="p">={'{'}</span><span className="n">{sandboxFilterStrength}</span><span className="p">{'}'}</span>{'\n'}</>
                             )}
                             {sandboxIntensity !== 1 && (
                               <>{'      '}<span className="a">intensity</span><span className="p">={'{'}</span><span className="n">{sandboxIntensity}</span><span className="p">{'}'}</span>{'\n'}</>
@@ -1399,6 +1429,12 @@ ctx.putImageData(dst, 0, 0);`}
                         <td><code>number</code></td>
                         <td><code>1</code></td>
                         <td>Effect strength multiplier (0–2). Scales every effect: zoom amount, swirl angle, grain, shadow depth, etc. <code>0</code> disables the effect.</td>
+                      </tr>
+                      <tr>
+                        <td><code className="prop-name">filterIntensity</code></td>
+                        <td><code>number</code></td>
+                        <td><code>1</code></td>
+                        <td>Strength multiplier for the blur-family filters (<code>blur-soft</code>, <code>blur</code>, <code>blur-heavy</code>, <code>liquid-glass</code>). Scales the blur radius — e.g. <code>filterIntensity={'{8}'}</code> on <code>blur-heavy</code> gives a 96px, unrecognizable frost.</td>
                       </tr>
                       <tr>
                         <td><code className="prop-name">lensSize</code></td>

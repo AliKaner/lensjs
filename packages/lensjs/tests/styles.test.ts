@@ -40,6 +40,10 @@ describe('styles.css', () => {
     expect(css).toContain('var(--lens-intensity');
   });
 
+  it('should scale blur filters with the filter strength variable', () => {
+    expect(css).toContain('var(--lens-filter-strength');
+  });
+
   it('should support the square lens shape', () => {
     expect(css).toContain('[data-lens-shape="square"]');
   });

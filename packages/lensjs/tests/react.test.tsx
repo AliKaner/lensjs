@@ -69,6 +69,13 @@ describe('LensImage component', () => {
     expect(html).toContain('data-lens-shape="square"');
   });
 
+  it('should expose filterIntensity for the blur-family filters', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(LensImage, { src: '/lotr.jpg', alt: 'Lotr', filter: 'blur-heavy', filterIntensity: 8 })
+    );
+    expect(html).toContain('--lens-filter-strength:8');
+  });
+
   it('should render the reveal image when effect is reveal', () => {
     const html = renderToStaticMarkup(
       React.createElement(LensImage, { src: '/lotr.jpg', alt: 'Lotr', effect: 'reveal', revealSrc: '/ikiru.jpg' })
