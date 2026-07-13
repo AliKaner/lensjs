@@ -547,20 +547,22 @@
   filter: brightness(1.1) contrast(0.9) saturate(1.1) sepia(0.12);
 }
 
-/* Blur family — plain gaussian blurs in three strengths */
+/* Blur family — plain gaussian blurs in three strengths.
+   All scale with --lens-filter-strength (the `filterIntensity` prop, default 1),
+   so blur-heavy at filterIntensity={8} is a 96px, fully unrecognizable frost. */
 .lens-image-wrapper[data-lens-filter="blur-soft"] img,
 .lens-image-wrapper[data-lens-filter="blur-soft"] > :not(canvas):not(.lens-reveal-img) {
-  filter: blur(2px);
+  filter: blur(calc(2px * var(--lens-filter-strength, 1)));
 }
 
 .lens-image-wrapper[data-lens-filter="blur"] img,
 .lens-image-wrapper[data-lens-filter="blur"] > :not(canvas):not(.lens-reveal-img) {
-  filter: blur(5px);
+  filter: blur(calc(5px * var(--lens-filter-strength, 1)));
 }
 
 .lens-image-wrapper[data-lens-filter="blur-heavy"] img,
 .lens-image-wrapper[data-lens-filter="blur-heavy"] > :not(canvas):not(.lens-reveal-img) {
-  filter: blur(12px);
+  filter: blur(calc(12px * var(--lens-filter-strength, 1)));
 }
 
 /* Directional motion blurs — axis-locked gaussian via inline SVG filters
@@ -579,5 +581,5 @@
    lifted brightness and softened contrast (filter-only so it composes with any effect) */
 .lens-image-wrapper[data-lens-filter="liquid-glass"] img,
 .lens-image-wrapper[data-lens-filter="liquid-glass"] > :not(canvas):not(.lens-reveal-img) {
-  filter: blur(7px) saturate(1.9) brightness(1.08) contrast(0.88);
+  filter: blur(calc(7px * var(--lens-filter-strength, 1))) saturate(1.9) brightness(1.08) contrast(0.88);
 }

@@ -34,6 +34,9 @@ export interface LensImageProps extends Omit<React.HTMLAttributes<HTMLDivElement
   revealSrc?: string;
   /** Effect strength multiplier (0..2). 1 = default look, 0 disables, 2 doubles. */
   intensity?: number;
+  /** Blur-family filter strength multiplier (blur-soft, blur, blur-heavy, liquid-glass).
+      1 = preset default; e.g. 8 turns blur-heavy into a 96px, unrecognizable frost. */
+  filterIntensity?: number;
   /** Lens diameter in px for the lens effects (invert, reveal, magnify, blur-lens, grayscale-lens, spotlight). Default 130. */
   lensSize?: number;
   /** Lens shape for the cursor lens effects. Default 'circle'. */
@@ -47,6 +50,7 @@ export interface LensImageProps extends Omit<React.HTMLAttributes<HTMLDivElement
 
 export interface LensConfig {
   intensity?: number;
+  filterIntensity?: number;
   lensSize?: number;
   lensShape?: 'circle' | 'square';
   crossOrigin?: 'anonymous' | 'use-credentials' | '';
@@ -187,6 +191,7 @@ export function LensImage({
   filter,
   revealSrc,
   intensity,
+  filterIntensity,
   lensSize,
   lensShape,
   crossOrigin,
@@ -200,6 +205,7 @@ export function LensImage({
   const globalConfig = useLensConfig();
 
   const activeIntensity = intensity ?? globalConfig.intensity ?? 1;
+  const activeFilterIntensity = filterIntensity ?? globalConfig.filterIntensity ?? 1;
   const activeLensSize = lensSize ?? globalConfig.lensSize;
   const activeLensShape = lensShape ?? globalConfig.lensShape ?? 'circle';
   const activeCrossOrigin = crossOrigin ?? globalConfig.crossOrigin;
@@ -216,6 +222,7 @@ export function LensImage({
     position: 'relative',
     // CSS effects read these custom properties from styles.css
     ...(activeIntensity !== 1 ? ({ '--lens-intensity': activeIntensity } as React.CSSProperties) : null),
+    ...(activeFilterIntensity !== 1 ? ({ '--lens-filter-strength': activeFilterIntensity } as React.CSSProperties) : null),
     ...(activeLensSize !== undefined ? ({ '--lens-size': `${activeLensSize}px` } as React.CSSProperties) : null),
   };
 
