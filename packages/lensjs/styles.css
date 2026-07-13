@@ -546,3 +546,31 @@
 .lens-image-wrapper[data-lens-filter="amaro"] > :not(canvas):not(.lens-reveal-img) {
   filter: brightness(1.1) contrast(0.9) saturate(1.1) sepia(0.12);
 }
+
+/* Blur family — plain gaussian blurs in three strengths */
+.lens-image-wrapper[data-lens-filter="blur-soft"] img,
+.lens-image-wrapper[data-lens-filter="blur-soft"] > :not(canvas):not(.lens-reveal-img) {
+  filter: blur(2px);
+}
+
+.lens-image-wrapper[data-lens-filter="blur"] img,
+.lens-image-wrapper[data-lens-filter="blur"] > :not(canvas):not(.lens-reveal-img) {
+  filter: blur(5px);
+}
+
+.lens-image-wrapper[data-lens-filter="blur-heavy"] img,
+.lens-image-wrapper[data-lens-filter="blur-heavy"] > :not(canvas):not(.lens-reveal-img) {
+  filter: blur(12px);
+}
+
+/* Directional motion blurs — axis-locked gaussian via inline SVG filters
+   (CSS blur() is always symmetric, so a data-URI SVG filter supplies the 1D kernel) */
+.lens-image-wrapper[data-lens-filter="motion-blur"] img,
+.lens-image-wrapper[data-lens-filter="motion-blur"] > :not(canvas):not(.lens-reveal-img) {
+  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='lens-mb-x'><feGaussianBlur in='SourceGraphic' stdDeviation='10,0'/></filter></svg>#lens-mb-x");
+}
+
+.lens-image-wrapper[data-lens-filter="motion-blur-vertical"] img,
+.lens-image-wrapper[data-lens-filter="motion-blur-vertical"] > :not(canvas):not(.lens-reveal-img) {
+  filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='lens-mb-y'><feGaussianBlur in='SourceGraphic' stdDeviation='0,10'/></filter></svg>#lens-mb-y");
+}

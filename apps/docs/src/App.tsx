@@ -102,6 +102,8 @@ function App() {
   const [sandboxIntensity, setSandboxIntensity] = useState<number>(1);
   const [sandboxLensSize, setSandboxLensSize] = useState<number>(130);
   const [sandboxLensShape, setSandboxLensShape] = useState<'circle' | 'square'>('circle');
+  const [previewWidth, setPreviewWidth] = useState<number>(320);
+  const [previewHeight, setPreviewHeight] = useState<number>(320);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string>('intro');
 
@@ -126,6 +128,15 @@ function App() {
 
   const sandboxCodeSrc = sandboxImg.startsWith('/') ? '/your-image.jpg' : sandboxImg;
   const sandboxRevealSrc = sandboxImg === '/ikiru.jpg' ? '/lotr.jpg' : '/ikiru.jpg';
+
+  const PREVIEW_MIN = 100;
+  const PREVIEW_MAX = 560;
+  const isCustomSize = previewWidth !== 320 || previewHeight !== 320;
+  const clampPreview = (value: number) =>
+    Math.max(PREVIEW_MIN, Math.min(PREVIEW_MAX, Math.round(value)));
+  const sandboxCodeStyle = isCustomSize
+    ? `width: '${previewWidth}px', height: '${previewHeight}px', objectFit: 'cover', borderRadius: '16px'`
+    : `width: '100%', maxWidth: '400px', borderRadius: '16px'`;
 
   const effectsList = [
     { id: 'zoom', name: 'Zoom', desc: 'Scales the image smoothly on hover' },
@@ -162,6 +173,11 @@ function App() {
 
   const filtersList: { id: LensFilter | 'none'; name: string }[] = [
     { id: 'none', name: 'None' },
+    { id: 'blur-soft', name: 'Soft Blur (Subtle 2px)' },
+    { id: 'blur', name: 'Blur (Standard 5px)' },
+    { id: 'blur-heavy', name: 'Heavy Blur (Frosted 12px)' },
+    { id: 'motion-blur', name: 'Motion Blur (Horizontal)' },
+    { id: 'motion-blur-vertical', name: 'Motion Blur (Vertical)' },
     { id: 'bladerunner', name: 'Blade Runner (Teal & Orange)' },
     { id: 'cyberpunk', name: 'Cyberpunk (Pink & Cyan)' },
     { id: 'vintage', name: 'Vintage (Warm Polaroid)' },
@@ -204,7 +220,7 @@ function App() {
     { id: 'performance', title: 'Performance & Accessibility', keywords: 'a11y cors reduced motion aria requestanimationframe alt text' },
     { id: 'props', title: 'Props Schema', keywords: 'api reference effect filter intensity lenssize lensshape revealsrc props table' },
     { id: 'lenses', title: 'Lens Configuration', keywords: 'lens size shape provider global config theme cursor' },
-    { id: 'color-filters', title: 'Color Filters', keywords: 'presets movie color grades cinematic' },
+    { id: 'color-filters', title: 'Color Filters', keywords: 'presets movie color grades cinematic blur motion blur gaussian frosted' },
     { id: 'custom-css', title: 'Custom CSS Variables', keywords: 'override css variables customize stylesheet' },
   ];
 
@@ -551,7 +567,63 @@ function App() {
                     lensSize={isLensEffect ? sandboxLensSize : undefined}
                     lensShape={isLensEffect ? sandboxLensShape : undefined}
                     className="sandbox-lens-image"
+                    style={{ width: `${previewWidth}px`, height: `${previewHeight}px`, maxWidth: 'none' }}
                   />
+                </div>
+
+                <div className="preview-size-row">
+                  <div className="size-control">
+                    <label className="control-sublabel">Width: {previewWidth}px</label>
+                    <div className="size-inputs">
+                      <input
+                        type="range"
+                        min={PREVIEW_MIN}
+                        max={PREVIEW_MAX}
+                        step={1}
+                        value={previewWidth}
+                        onChange={(e) => setPreviewWidth(Number(e.target.value))}
+                      />
+                      <input
+                        type="number"
+                        className="size-number-input"
+                        min={PREVIEW_MIN}
+                        max={PREVIEW_MAX}
+                        step={1}
+                        value={previewWidth}
+                        onChange={(e) => setPreviewWidth(clampPreview(Number(e.target.value) || PREVIEW_MIN))}
+                      />
+                    </div>
+                  </div>
+                  <div className="size-control">
+                    <label className="control-sublabel">Height: {previewHeight}px</label>
+                    <div className="size-inputs">
+                      <input
+                        type="range"
+                        min={PREVIEW_MIN}
+                        max={PREVIEW_MAX}
+                        step={1}
+                        value={previewHeight}
+                        onChange={(e) => setPreviewHeight(Number(e.target.value))}
+                      />
+                      <input
+                        type="number"
+                        className="size-number-input"
+                        min={PREVIEW_MIN}
+                        max={PREVIEW_MAX}
+                        step={1}
+                        value={previewHeight}
+                        onChange={(e) => setPreviewHeight(clampPreview(Number(e.target.value) || PREVIEW_MIN))}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    className="size-reset-btn"
+                    onClick={() => { setPreviewWidth(320); setPreviewHeight(320); }}
+                    disabled={!isCustomSize}
+                    title="Reset to 320 × 320"
+                  >
+                    Reset
+                  </button>
                 </div>
               </div>
 
@@ -701,7 +773,7 @@ function App() {
                         <button 
                           className="copy-code-btn-compact"
                           onClick={() => handleCopy(
-                            `import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"\n      effect="${sandboxEffect}"${needsRevealSrc ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ width: '100%', maxWidth: '400px', borderRadius: '16px' }}\n    />\n  );\n}`,
+                            `import { LensImage } from '@alikaner/lensjs/react';\nimport '@alikaner/lensjs/styles.css';\n\nfunction Demo() {\n  return (\n    <LensImage\n      src="${sandboxCodeSrc}"\n      alt="Demo Image"\n      effect="${sandboxEffect}"${needsRevealSrc ? `\n      revealSrc="/second-image.jpg"` : ''}${sandboxFilter !== 'none' ? `\n      filter="${sandboxFilter}"` : ''}${sandboxIntensity !== 1 ? `\n      intensity={${sandboxIntensity}}` : ''}${isLensEffect && sandboxLensSize !== 130 ? `\n      lensSize={${sandboxLensSize}}` : ''}${isLensEffect && sandboxLensShape !== 'circle' ? `\n      lensShape="${sandboxLensShape}"` : ''}\n      style={{ ${sandboxCodeStyle} }}\n    />\n  );\n}`,
                             'sandbox-code'
                           )}
                         >
@@ -735,7 +807,11 @@ function App() {
                             {isLensEffect && sandboxLensShape !== 'circle' && (
                               <>{'      '}<span className="a">lensShape</span><span className="p">=</span><span className="s">"{sandboxLensShape}"</span>{'\n'}</>
                             )}
-                            {'      '}<span className="a">style</span><span className="p">=</span><span className="p">{"{{"}</span> <span className="pr">width</span><span className="p">:</span> <span className="s">'100%'</span><span className="p">,</span> <span className="pr">maxWidth</span><span className="p">:</span> <span className="s">'400px'</span><span className="p">,</span> <span className="pr">borderRadius</span><span className="p">:</span> <span className="s">'16px'</span> <span className="p">{"}}"}</span>{'\n'}
+                            {isCustomSize ? (
+                              <>{'      '}<span className="a">style</span><span className="p">=</span><span className="p">{"{{"}</span> <span className="pr">width</span><span className="p">:</span> <span className="s">'{previewWidth}px'</span><span className="p">,</span> <span className="pr">height</span><span className="p">:</span> <span className="s">'{previewHeight}px'</span><span className="p">,</span> <span className="pr">objectFit</span><span className="p">:</span> <span className="s">'cover'</span><span className="p">,</span> <span className="pr">borderRadius</span><span className="p">:</span> <span className="s">'16px'</span> <span className="p">{"}}"}</span>{'\n'}</>
+                            ) : (
+                              <>{'      '}<span className="a">style</span><span className="p">=</span><span className="p">{"{{"}</span> <span className="pr">width</span><span className="p">:</span> <span className="s">'100%'</span><span className="p">,</span> <span className="pr">maxWidth</span><span className="p">:</span> <span className="s">'400px'</span><span className="p">,</span> <span className="pr">borderRadius</span><span className="p">:</span> <span className="s">'16px'</span> <span className="p">{"}}"}</span>{'\n'}</>
+                            )}
                             {'    '}<span className="p">/&gt;</span>{'\n'}
                             {'  '}<span className="p">);</span>{'\n'}
                             <span className="p">{"}"}</span>
@@ -1293,7 +1369,7 @@ ctx.putImageData(dst, 0, 0);`}
                       </tr>
                       <tr>
                         <td><code className="prop-name">filter</code></td>
-                        <td><code>'bladerunner' | 'cyberpunk' | 'vintage' | 'sunset' | 'oceanic' | 'duotone-purple' | 'duotone-red' | 'duotone-cyan' | 'dreamy' | 'vintage-high' | 'amaro' | 'twilight-1' | 'twilight-2' | 'twilight-3' | 'matrix' | 'noir' | 'mad-max' | 'grayscale'</code></td>
+                        <td><code>'bladerunner' | 'cyberpunk' | 'vintage' | 'sunset' | 'oceanic' | 'duotone-purple' | 'duotone-red' | 'duotone-cyan' | 'dreamy' | 'vintage-high' | 'amaro' | 'twilight-1' | 'twilight-2' | 'twilight-3' | 'matrix' | 'noir' | 'mad-max' | 'grayscale' | 'blur-soft' | 'blur' | 'blur-heavy' | 'motion-blur' | 'motion-blur-vertical'</code></td>
                         <td><code>-</code></td>
                         <td>Movie-inspired color grading preset. Always applied and composes with any <code>effect</code>.</td>
                       </tr>
@@ -1491,6 +1567,11 @@ export default function ColorFilters() {
                       <tr><td><code>noir</code></td><td>Sin City</td><td>Harsh high-contrast monochrome</td></tr>
                       <tr><td><code>mad-max</code></td><td>Mad Max: Fury Road</td><td>Scorched desert orange</td></tr>
                       <tr><td><code>grayscale</code></td><td>—</td><td>Plain black &amp; white</td></tr>
+                      <tr><td><code>blur-soft</code></td><td>Soft Focus</td><td>Subtle 2px gaussian blur</td></tr>
+                      <tr><td><code>blur</code></td><td>Plain Blur</td><td>Standard 5px gaussian blur</td></tr>
+                      <tr><td><code>blur-heavy</code></td><td>Frosted Glass</td><td>Strong 12px gaussian blur</td></tr>
+                      <tr><td><code>motion-blur</code></td><td>Speed Pan</td><td>Horizontal-only directional blur</td></tr>
+                      <tr><td><code>motion-blur-vertical</code></td><td>Vertical Sweep</td><td>Vertical-only directional blur</td></tr>
                     </tbody>
                   </table>
                 </div>

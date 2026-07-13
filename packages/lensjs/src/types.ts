@@ -49,7 +49,12 @@ export type LensFilter =
   | 'duotone-cyan'
   | 'dreamy'
   | 'vintage-high'
-  | 'amaro';
+  | 'amaro'
+  | 'blur-soft'
+  | 'blur'
+  | 'blur-heavy'
+  | 'motion-blur'
+  | 'motion-blur-vertical';
 
 /** Raw RGBA pixel buffer — structurally compatible with canvas ImageData. */
 export interface PixelData {

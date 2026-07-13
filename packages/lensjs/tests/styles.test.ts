@@ -17,6 +17,7 @@ const filters = [
   'cyberpunk', 'vintage', 'sunset', 'oceanic',
   'duotone-purple', 'duotone-red', 'duotone-cyan',
   'dreamy', 'vintage-high', 'amaro',
+  'blur-soft', 'blur', 'blur-heavy', 'motion-blur', 'motion-blur-vertical',
 ] as const;
 
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
