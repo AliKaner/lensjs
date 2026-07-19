@@ -9,6 +9,8 @@ const effects = [
   'wave', 'chromatic-aberration', 'halftone', 'posterize', 'melt',
   'tilt-3d', 'spotlight', 'ken-burns', 'scanlines',
   'shadow', 'heart-beat',
+  'pop', 'shake', 'jelly', 'float', 'sway', 'press', 'squeeze', 'rotate',
+  'pulse-glow', 'gradient-border', 'color-pop', 'blur-focus', 'hue-cycle',
 ] as const;
 
 const filters = [

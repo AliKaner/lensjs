@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { LensImage, type LensEffect, type LensFilter } from '@alikaner/lensjs/react';
+import { LensImage, LensProvider, type LensEffect, type LensFilter } from '@alikaner/lensjs/react';
 import '@alikaner/lensjs/styles.css';
 import './App.css';
 
@@ -112,6 +112,9 @@ function App() {
   const [heroEffect, setHeroEffect] = useState<LensEffect>('invert');
   const [heroFilter, setHeroFilter] = useState<LensFilter | 'none'>('cyberpunk');
 
+  // Landing "theme-driven filters" demo — one provider filter re-grades the whole mock UI
+  const [themeFilter, setThemeFilter] = useState<LensFilter | 'none'>('noir');
+
   // Accordion open/collapse states for Sandbox
   const [expandedGroups, setExpandedGroups] = useState({
     effects: true,
@@ -177,6 +180,19 @@ function App() {
     { id: 'melt', name: 'Melting Shift', desc: 'Drips and melts image pixels vertically (canvas)' },
     { id: 'shadow', name: 'Shadow', desc: 'Soft drop shadow with a gentle floating lift' },
     { id: 'heart-beat', name: 'Heart Beat', desc: 'Rhythmic double-pulse scale, like a heartbeat' },
+    { id: 'pop', name: 'Pop', desc: 'Springy overshoot scale-up on hover' },
+    { id: 'shake', name: 'Shake', desc: 'Quick horizontal jiggle, great for CTAs' },
+    { id: 'jelly', name: 'Jelly', desc: 'Cartoon squash & stretch wobble' },
+    { id: 'float', name: 'Float', desc: 'Gentle continuous levitation while hovered' },
+    { id: 'sway', name: 'Sway', desc: 'Slow pendulum swing hanging from the top edge' },
+    { id: 'press', name: 'Press', desc: 'Tactile push-down, like a physical button' },
+    { id: 'squeeze', name: 'Squeeze', desc: 'Horizontal stretch with a vertical squash' },
+    { id: 'rotate', name: 'Rotate', desc: 'Playful tilt-rotate with a slight zoom' },
+    { id: 'pulse-glow', name: 'Pulse Glow', desc: 'Breathing colored glow ring (recolor via --lens-glow-rgb)' },
+    { id: 'gradient-border', name: 'Gradient Border', desc: 'Animated conic-gradient border ring' },
+    { id: 'color-pop', name: 'Color Pop', desc: 'Grayscale at rest — colors bloom back on hover' },
+    { id: 'blur-focus', name: 'Blur Focus', desc: 'Soft focus at rest, snaps tack sharp on hover' },
+    { id: 'hue-cycle', name: 'Hue Cycle', desc: 'Colors rotate through the full spectrum while hovered' },
   ] as const;
 
   const filtersList: { id: LensFilter | 'none'; name: string; short?: string }[] = [
@@ -414,10 +430,10 @@ function App() {
             {/* Hero Section */}
             <section className="hero-layout">
               <div className="hero-text-side">
-                <div className="version-tag">v1.2.0 is now live</div>
+                <div className="version-tag">v1.3.0 is now live</div>
                 <h1>Stunning <span className="gradient-text">Interactive Lens Effects</span> for React</h1>
                 <p className="hero-subtitle">
-                  A lightweight, zero-dependency utility package to wrap your images in premium, glassmorphic reflections, interactive neon bounds, and silky-smooth hover scaling.
+                  A lightweight, zero-dependency wrapper for images, buttons, sidebars — any element. 43 hover effects, 24 cinematic color filters, and theme-wide grading through a single provider.
                 </p>
                 
                 <div className="hero-actions-container">
@@ -500,35 +516,155 @@ function App() {
               </div>
             </section>
 
-            {/* Quick Demo Feature Grid */}
+            {/* Works-on-anything show-off grid */}
             <section className="features-grid-section">
-              <h2 className="section-title">Built for Modern Aesthetics</h2>
+              <h2 className="section-title">Not Just Images — Wrap Anything</h2>
+              <p className="section-subtitle">
+                The same <code>&lt;LensImage&gt;</code> wrapper animates buttons, sidebars, cards and headings. Hover each demo.
+              </p>
               <div className="features-grid">
-                
+
                 <div className="feature-card">
-                  <div className="feature-preview">
-                    <LensImage src="/lotr.jpg" alt="Glare effect example" effect="glare" className="feat-img" />
+                  <div className="feature-preview showoff-stack">
+                    <LensImage effect="gradient-border">
+                      <button className="showoff-btn">Deploy Project</button>
+                    </LensImage>
+                    <LensImage effect="pulse-glow">
+                      <button className="showoff-btn showoff-btn-ghost">Pulse Glow</button>
+                    </LensImage>
+                    <LensImage effect="jelly">
+                      <button className="showoff-btn showoff-btn-pink">Jelly Wobble</button>
+                    </LensImage>
                   </div>
-                  <h3>Reflection Glare</h3>
-                  <p>Runs a silky, dynamic light sweep reflection across the image surface upon mouse hover.</p>
+                  <h3>Buttons &amp; CTAs</h3>
+                  <p>Wrap any button for spring pops, jelly wobbles, animated gradient borders or breathing glows — zero extra markup.</p>
                 </div>
 
                 <div className="feature-card">
                   <div className="feature-preview">
-                    <LensImage src="/ikiru.jpg" alt="Glass effect example" effect="glass" className="feat-img" />
+                    <div className="mock-sidebar">
+                      <div className="mock-sidebar-title">
+                        <LensImage effect="hue-cycle">
+                          <span className="mock-sidebar-logo">◈ lensapp</span>
+                        </LensImage>
+                      </div>
+                      {['Dashboard', 'Projects', 'Analytics', 'Settings'].map((item, i) => (
+                        <LensImage key={item} effect={i === 1 ? 'pop' : 'press'} className="mock-sidebar-item-wrap">
+                          <span className={`mock-sidebar-item ${i === 1 ? 'active' : ''}`}>{item}</span>
+                        </LensImage>
+                      ))}
+                    </div>
                   </div>
-                  <h3>Frosted Glass</h3>
-                  <p>Surrounds the image inside a glassmorphic border with custom hover lighting and card lift.</p>
+                  <h3>Sidebars &amp; Navigation</h3>
+                  <p>Nav items press down like physical keys, logos cycle through hues — micro-interactions for entire layout chrome.</p>
                 </div>
 
                 <div className="feature-card">
                   <div className="feature-preview">
-                    <LensImage src="/lotr.jpg" alt="Neon glow example" effect="neon" className="feat-img" />
+                    <LensImage src="/lotr.jpg" alt="Color pop example" effect="color-pop" className="feat-img" />
                   </div>
-                  <h3>Neon Spotlight</h3>
-                  <p>Vibrant shifting neon outer borders and drop shadows that dynamically scale with the component.</p>
+                  <h3>Images, Still First-Class</h3>
+                  <p>All 43 effects work on images — this one sleeps in grayscale and blooms back to full color under your cursor.</p>
                 </div>
 
+              </div>
+            </section>
+
+            {/* Theme-driven filters show-off */}
+            <section className="theme-demo-section">
+              <h2 className="section-title">One Provider, Theme-Wide Filters</h2>
+              <p className="section-subtitle">
+                Put a <code>filter</code> in <code>LensProvider</code> and every wrapped element — images, buttons, whole sidebars — re-grades together. Perfect for theme switches.
+              </p>
+
+              <div className="theme-demo-layout">
+                <div className="theme-demo-window">
+                  <div className="showcase-window-header">
+                    <div className="window-dots">
+                      <span className="dot dot-red"></span>
+                      <span className="dot dot-yellow"></span>
+                      <span className="dot dot-green"></span>
+                    </div>
+                    <span className="window-title">theme_provider.tsx</span>
+                  </div>
+
+                  <LensProvider value={{ filter: themeFilter === 'none' ? undefined : themeFilter }}>
+                    <div className="mock-app">
+                      <LensImage className="mock-app-sidebar-wrap">
+                        <aside className="mock-app-sidebar">
+                          <span className="mock-sidebar-logo">◈ lensapp</span>
+                          {['Home', 'Library', 'Favorites'].map((item, i) => (
+                            <span key={item} className={`mock-sidebar-item ${i === 0 ? 'active' : ''}`}>{item}</span>
+                          ))}
+                        </aside>
+                      </LensImage>
+                      <div className="mock-app-main">
+                        <div className="mock-app-images">
+                          <LensImage src="/lotr.jpg" alt="Themed gallery item" effect="zoom" className="mock-app-img" />
+                          <LensImage src="/ikiru.jpg" alt="Themed gallery item" effect="zoom" className="mock-app-img" />
+                        </div>
+                        <LensImage effect="press">
+                          <button className="showoff-btn">Primary Action</button>
+                        </LensImage>
+                      </div>
+                    </div>
+                  </LensProvider>
+
+                  <div className="showcase-footer-controls">
+                    <span className="showcase-ctrl-label">Theme filter:</span>
+                    <div className="showcase-presets-row">
+                      {([
+                        { id: 'none', label: 'Default' },
+                        { id: 'noir', label: 'Noir' },
+                        { id: 'cyberpunk', label: 'Cyberpunk' },
+                        { id: 'vintage', label: 'Vintage' },
+                        { id: 'matrix', label: 'Matrix' },
+                        { id: 'bladerunner', label: 'Blade Runner' },
+                      ] as const).map((t) => (
+                        <button
+                          key={t.id}
+                          className={`showcase-chip ${themeFilter === t.id ? 'active' : ''}`}
+                          onClick={() => setThemeFilter(t.id)}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="theme-demo-code">
+                  <CodeBlock
+                    title="App.tsx — one line per theme"
+                    copyText={`import { LensProvider, LensImage } from '@alikaner/lensjs/react';
+
+function App({ theme }) {
+  return (
+    <LensProvider value={{ filter: theme === 'noir' ? 'noir' : undefined }}>
+      <LensImage effect="press">
+        <aside className="sidebar">…</aside>
+      </LensImage>
+      <LensImage src="/hero.jpg" effect="zoom" />
+    </LensProvider>
+  );
+}`}
+                  >
+                    <span className="k">import</span> <span className="p">{"{"}</span> <span className="c">LensProvider</span><span className="p">,</span> <span className="c">LensImage</span> <span className="p">{"}"}</span> <span className="k">from</span> <span className="s">'@alikaner/lensjs/react'</span><span className="p">;</span>{'\n\n'}
+                    <span className="k">function</span> <span className="f">App</span><span className="p">({"{"}</span> <span className="pr">theme</span> <span className="p">{"}"})</span> <span className="p">{"{"}</span>{'\n'}
+                    {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
+                    {'    '}<span className="p">&lt;</span><span className="c">LensProvider</span> <span className="a">value</span><span className="p">=</span><span className="p">{"{{"}</span> <span className="pr">filter</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'noir'</span> <span className="p">?</span> <span className="s">'noir'</span> <span className="p">:</span> <span className="k">undefined</span> <span className="p">{"}}"}</span><span className="p">&gt;</span>{'\n'}
+                    {'      '}<span className="p">&lt;</span><span className="c">LensImage</span> <span className="a">effect</span><span className="p">=</span><span className="s">"press"</span><span className="p">&gt;</span>{'\n'}
+                    {'        '}<span className="p">&lt;</span><span className="k">aside</span> <span className="a">className</span><span className="p">=</span><span className="s">"sidebar"</span><span className="p">&gt;</span>…<span className="p">&lt;/</span><span className="k">aside</span><span className="p">&gt;</span>{'\n'}
+                    {'      '}<span className="p">&lt;/</span><span className="c">LensImage</span><span className="p">&gt;</span>{'\n'}
+                    {'      '}<span className="p">&lt;</span><span className="c">LensImage</span> <span className="a">src</span><span className="p">=</span><span className="s">"/hero.jpg"</span> <span className="a">effect</span><span className="p">=</span><span className="s">"zoom"</span> <span className="p">/&gt;</span>{'\n'}
+                    {'    '}<span className="p">&lt;/</span><span className="c">LensProvider</span><span className="p">&gt;</span>{'\n'}
+                    {'  '}<span className="p">);</span>{'\n'}
+                    <span className="p">{"}"}</span>
+                  </CodeBlock>
+                  <p className="theme-demo-note">
+                    Local <code>filter</code> props still override the theme — pin any element to its own grade while the rest of the UI follows the switch.
+                  </p>
+                </div>
               </div>
             </section>
 
@@ -1408,7 +1544,7 @@ ctx.putImageData(dst, 0, 0);`}
                     <tbody>
                       <tr>
                         <td><code className="prop-name">effect</code></td>
-                        <td><code>'zoom' | 'glare' | 'glass' | 'blur-vignette' | 'invert' | 'invert-full' | 'reveal' | 'magnify' | 'blur-lens' | 'grayscale-lens' | 'flip-reveal' | 'neon' | 'vortex' | 'noise' | 'glitch' | 'fisheye' | 'pixelate' | 'denoise' | 'resolution-boost' | 'wave' | 'chromatic-aberration' | 'halftone' | 'posterize' | 'melt' | 'tilt-3d' | 'spotlight' | 'ken-burns' | 'scanlines' | 'shadow' | 'heart-beat'</code></td>
+                        <td><code>'zoom' | 'glare' | 'glass' | 'blur-vignette' | 'invert' | 'invert-full' | 'reveal' | 'magnify' | 'blur-lens' | 'grayscale-lens' | 'flip-reveal' | 'neon' | 'vortex' | 'noise' | 'glitch' | 'fisheye' | 'pixelate' | 'denoise' | 'resolution-boost' | 'wave' | 'chromatic-aberration' | 'halftone' | 'posterize' | 'melt' | 'tilt-3d' | 'spotlight' | 'ken-burns' | 'scanlines' | 'shadow' | 'heart-beat' | 'pop' | 'shake' | 'jelly' | 'float' | 'sway' | 'press' | 'squeeze' | 'rotate' | 'pulse-glow' | 'gradient-border' | 'color-pop' | 'blur-focus' | 'hue-cycle'</code></td>
                         <td><code>-</code></td>
                         <td>The interactive hover effect to render. Canvas-based pixel effects read and process image data in real-time.</td>
                       </tr>
@@ -1524,7 +1660,9 @@ export default function App() {
   const lensConfig: LensConfig = {
     lensSize: theme === 'dark' ? 180 : 130,
     lensShape: theme === 'dark' ? 'square' : 'circle',
-    intensity: 1.2
+    intensity: 1.2,
+    // Theme-wide color grade: every wrapped element re-grades on switch
+    filter: theme === 'dark' ? 'noir' : undefined
   };
 
   return (
@@ -1545,7 +1683,9 @@ export default function App() {
                   {'  '}<span className="k">const</span> <span className="pr">lensConfig</span><span className="p">:</span> <span className="c">LensConfig</span> <span className="p">=</span> <span className="p">{"{"}</span>{'\n'}
                   {'    '}<span className="pr">lensSize</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'dark'</span> <span className="p">?</span> <span className="n">180</span> <span className="p">:</span> <span className="n">130</span><span className="p">,</span>{'\n'}
                   {'    '}<span className="pr">lensShape</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'dark'</span> <span className="p">?</span> <span className="s">'square'</span> <span className="p">:</span> <span className="s">'circle'</span><span className="p">,</span>{'\n'}
-                  {'    '}<span className="pr">intensity</span><span className="p">:</span> <span className="n">1.2</span>{'\n'}
+                  {'    '}<span className="pr">intensity</span><span className="p">:</span> <span className="n">1.2</span><span className="p">,</span>{'\n'}
+                  {'    '}<span className="co">// Theme-wide color grade: every wrapped element re-grades on switch</span>{'\n'}
+                  {'    '}<span className="pr">filter</span><span className="p">:</span> <span className="pr">theme</span> <span className="p">===</span> <span className="s">'dark'</span> <span className="p">?</span> <span className="s">'noir'</span> <span className="p">:</span> <span className="k">undefined</span>{'\n'}
                   {'  '}<span className="p">{"}"}</span><span className="p">;</span>{'\n\n'}
                   {'  '}<span className="k">return</span> <span className="p">(</span>{'\n'}
                   {'    '}<span className="p">&lt;</span><span className="c">LensProvider</span> <span className="a">value</span><span className="p">=</span><span className="p">{"{"}</span><span className="pr">lensConfig</span><span className="p">{"}"}</span><span className="p">&gt;</span>{'\n'}

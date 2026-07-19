@@ -1,6 +1,6 @@
 # lensjs
 
-Hover effects, cursor lenses and color filters for images in React. One `LensImage` component, 30 effects, 18 color presets, zero dependencies.
+Hover effects, cursor lenses and color filters for images — and any other element — in React. One `LensImage` component, 43 effects, 24 color & blur presets, zero dependencies.
 
 Some effects are plain CSS (zoom, neon, tilt), some are real per-pixel image processing rendered to a canvas overlay (vortex, glitch, fisheye, halftone...). The pixel filters are also exported as standalone functions if you want to use them outside React.
 
@@ -55,6 +55,7 @@ You can also wrap elements other than images. CSS effects (zoom, neon, tilt-3d, 
 | `filter` | `LensFilter` | – | Color grade preset. Always on, combines with any effect. |
 | `revealSrc` | `string` | – | Second image for `reveal` (shows through the lens) and `flip-reveal` (card back). |
 | `intensity` | `number` | `1` | Effect strength, 0 to 2. 0 disables, 2 doubles. |
+| `filterIntensity` | `number` | `1` | Strength multiplier for the blur-family filters (`blur-soft`, `blur`, `blur-heavy`, `liquid-glass`). |
 | `lensSize` | `number` | `130` | Lens diameter in px for the cursor lens effects. |
 | `lensShape` | `'circle' \| 'square'` | `'circle'` | Lens shape. |
 | `children` | `ReactNode` | – | Wrap an element instead of rendering an `<img>`. |
@@ -65,6 +66,10 @@ You can also wrap elements other than images. CSS effects (zoom, neon, tilt-3d, 
 CSS effects:
 
 `zoom`, `glare` (light sweep), `glass` (frosted frame), `blur-vignette`, `neon`, `shadow`, `heart-beat`, `invert-full`, `tilt-3d` (leans toward the cursor), `ken-burns` (slow pan and zoom), `flip-reveal` (3D flip to `revealSrc`), `spotlight` (light beam follows the cursor), `scanlines`
+
+Micro-interactions (great on buttons, cards, sidebar items — anything you wrap):
+
+`pop` (springy overshoot scale), `shake`, `jelly` (squash & stretch), `float` (slow levitation), `sway` (pendulum swing), `press` (tactile push-down), `squeeze`, `rotate`, `pulse-glow` (breathing glow ring, recolor via `--lens-glow-rgb`), `gradient-border` (animated conic-gradient ring), `color-pop` (grayscale until hovered), `blur-focus` (soft focus until hovered), `hue-cycle` (spins through the spectrum)
 
 Cursor lenses (all follow the mouse, sized with `lensSize`):
 
@@ -82,6 +87,8 @@ Set with the `filter` prop, inspired mostly by movie color grades:
 
 `bladerunner`, `matrix`, `noir`, `mad-max`, `twilight-1`, `twilight-2`, `twilight-3`, `cyberpunk`, `vintage`, `vintage-high`, `sunset`, `oceanic`, `dreamy`, `amaro`, `duotone-purple`, `duotone-red`, `duotone-cyan`, `grayscale`
 
+Blur family (scaled by `filterIntensity`): `blur-soft`, `blur`, `blur-heavy`, `motion-blur`, `motion-blur-vertical`, `liquid-glass`
+
 ## Global defaults
 
 `LensProvider` sets defaults for every `LensImage` under it. Component props still win. Handy for syncing lens settings with a theme:
@@ -97,6 +104,34 @@ function App() {
   );
 }
 ```
+
+### Theme-driven filters
+
+`filter` is part of the provider config too, so one state change re-grades **everything** wrapped in a `LensImage` — images, buttons, whole sidebars. Switch your app to noir mode in one line:
+
+```tsx
+import { useState } from 'react';
+import { LensProvider, LensImage, type LensFilter } from '@alikaner/lensjs/react';
+
+function App() {
+  const [theme, setTheme] = useState<'day' | 'noir'>('day');
+  const themeFilter: LensFilter | undefined = theme === 'noir' ? 'noir' : undefined;
+
+  return (
+    <LensProvider value={{ filter: themeFilter }}>
+      <LensImage effect="press">
+        <aside className="sidebar">…</aside>
+      </LensImage>
+      <LensImage src="/hero.jpg" effect="zoom" />
+      <button onClick={() => setTheme(theme === 'noir' ? 'day' : 'noir')}>
+        Toggle noir mode
+      </button>
+    </LensProvider>
+  );
+}
+```
+
+A `filter` prop on an individual `LensImage` still overrides the theme filter.
 
 ## Using the pixel filters directly
 

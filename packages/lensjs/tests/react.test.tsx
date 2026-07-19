@@ -117,6 +117,57 @@ describe('LensImage component', () => {
     expect(html).toContain('data-lens-shape="square"');
   });
 
+  it('should inherit a theme-level filter from LensProvider', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(
+        LensProvider,
+        { value: { filter: 'noir' } },
+        React.createElement(LensImage, { src: '/lotr.jpg', alt: 'Lotr', effect: 'zoom' })
+      )
+    );
+    expect(html).toContain('data-lens-filter="noir"');
+  });
+
+  it('should apply the provider filter to wrapped children too', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(
+        LensProvider,
+        { value: { filter: 'cyberpunk' } },
+        React.createElement(
+          LensImage,
+          { effect: 'pulse-glow' },
+          React.createElement('button', null, 'Launch')
+        )
+      )
+    );
+    expect(html).toContain('data-lens-filter="cyberpunk"');
+    expect(html).toContain('data-lens-effect="pulse-glow"');
+    expect(html).toContain('<button>Launch</button>');
+  });
+
+  it('should let a local filter override the provider filter', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(
+        LensProvider,
+        { value: { filter: 'noir' } },
+        React.createElement(LensImage, { src: '/lotr.jpg', alt: 'Lotr', filter: 'matrix' })
+      )
+    );
+    expect(html).toContain('data-lens-filter="matrix"');
+  });
+
+  it.each(['pop', 'jelly', 'gradient-border', 'color-pop', 'hue-cycle'] as const)(
+    'should render the %s CSS effect via data attribute',
+    (effect) => {
+      const html = renderToStaticMarkup(
+        React.createElement(LensImage, { src: '/lotr.jpg', alt: 'Lotr', effect })
+      );
+      expect(html).toContain(`data-lens-effect="${effect}"`);
+      // Pure CSS effects never mount the pixel-processing canvas
+      expect(html).not.toContain('<canvas');
+    }
+  );
+
   it('should override global config with local component props', () => {
     const html = renderToStaticMarkup(
       React.createElement(

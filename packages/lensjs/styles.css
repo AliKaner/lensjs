@@ -1,4 +1,4 @@
-/* lensjs — effect styles. Import once: `import 'lensjs/styles.css'` */
+/* lensjs — effect styles. Import once: `import '@alikaner/lensjs/styles.css'` */
 
 .lens-image-wrapper {
   overflow: hidden;
@@ -418,6 +418,60 @@
   .lens-image-wrapper[data-lens-effect="heart-beat"]:active > :not(canvas):not(.lens-reveal-img) {
     animation: lens-heart-beat 1.1s ease-in-out infinite;
   }
+  .lens-image-wrapper[data-lens-effect="pop"]:active img,
+  .lens-image-wrapper[data-lens-effect="pop"]:active > :not(canvas):not(.lens-reveal-img) {
+    animation: lens-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .lens-image-wrapper[data-lens-effect="shake"]:active img,
+  .lens-image-wrapper[data-lens-effect="shake"]:active > :not(canvas):not(.lens-reveal-img) {
+    animation: lens-shake 0.5s ease-in-out;
+  }
+  .lens-image-wrapper[data-lens-effect="jelly"]:active img,
+  .lens-image-wrapper[data-lens-effect="jelly"]:active > :not(canvas):not(.lens-reveal-img) {
+    animation: lens-jelly 0.8s ease both;
+  }
+  .lens-image-wrapper[data-lens-effect="float"]:active img,
+  .lens-image-wrapper[data-lens-effect="float"]:active > :not(canvas):not(.lens-reveal-img) {
+    animation: lens-float 3s ease-in-out infinite;
+  }
+  .lens-image-wrapper[data-lens-effect="sway"]:active img,
+  .lens-image-wrapper[data-lens-effect="sway"]:active > :not(canvas):not(.lens-reveal-img) {
+    transform-origin: top center;
+    animation: lens-sway 2.2s ease-in-out infinite;
+  }
+  .lens-image-wrapper[data-lens-effect="press"]:active {
+    transform: translateY(calc(2px * var(--lens-intensity, 1))) scale(calc(1 - 0.03 * var(--lens-intensity, 1)));
+    filter: brightness(0.96);
+  }
+  .lens-image-wrapper[data-lens-effect="squeeze"]:active img,
+  .lens-image-wrapper[data-lens-effect="squeeze"]:active > :not(canvas):not(.lens-reveal-img) {
+    transform: scale(calc(1 + 0.06 * var(--lens-intensity, 1)), calc(1 - 0.06 * var(--lens-intensity, 1)));
+  }
+  .lens-image-wrapper[data-lens-effect="rotate"]:active img,
+  .lens-image-wrapper[data-lens-effect="rotate"]:active > :not(canvas):not(.lens-reveal-img) {
+    transform: rotate(calc(3deg * var(--lens-intensity, 1))) scale(1.04);
+  }
+  .lens-image-wrapper[data-lens-effect="pulse-glow"]:active {
+    animation: lens-pulse-glow 1.6s ease-in-out infinite;
+  }
+  .lens-image-wrapper[data-lens-effect="gradient-border"]:active::after {
+    opacity: 1;
+    animation: lens-gradient-spin 3s linear infinite;
+  }
+  .lens-image-wrapper[data-lens-effect="color-pop"]:active img,
+  .lens-image-wrapper[data-lens-effect="color-pop"]:active > :not(canvas):not(.lens-reveal-img) {
+    filter: grayscale(0) saturate(calc(1 + 0.35 * var(--lens-intensity, 1)));
+    transform: scale(1.02);
+  }
+  .lens-image-wrapper[data-lens-effect="blur-focus"]:active img,
+  .lens-image-wrapper[data-lens-effect="blur-focus"]:active > :not(canvas):not(.lens-reveal-img) {
+    filter: blur(0);
+    transform: scale(1.02);
+  }
+  .lens-image-wrapper[data-lens-effect="hue-cycle"]:active img,
+  .lens-image-wrapper[data-lens-effect="hue-cycle"]:active > :not(canvas):not(.lens-reveal-img) {
+    animation: lens-hue-cycle 2.5s linear infinite;
+  }
 }
 
 /* Square lens shape (lensShape="square") for the lens effects */
@@ -437,6 +491,159 @@
     var(--lens-size, 130px)
     round 10px
   );
+}
+
+/* Pop — springy scale-up with overshoot */
+.lens-image-wrapper[data-lens-effect="pop"]:hover img,
+.lens-image-wrapper[data-lens-effect="pop"]:hover > :not(canvas):not(.lens-reveal-img) {
+  animation: lens-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes lens-pop {
+  0% { transform: scale(1); }
+  60% { transform: scale(calc(1 + 0.12 * var(--lens-intensity, 1))); }
+  100% { transform: scale(calc(1 + 0.07 * var(--lens-intensity, 1))); }
+}
+
+/* Shake — quick horizontal jiggle */
+.lens-image-wrapper[data-lens-effect="shake"]:hover img,
+.lens-image-wrapper[data-lens-effect="shake"]:hover > :not(canvas):not(.lens-reveal-img) {
+  animation: lens-shake 0.5s ease-in-out;
+}
+@keyframes lens-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(calc(-6px * var(--lens-intensity, 1))); }
+  40% { transform: translateX(calc(5px * var(--lens-intensity, 1))); }
+  60% { transform: translateX(calc(-4px * var(--lens-intensity, 1))); }
+  80% { transform: translateX(calc(2px * var(--lens-intensity, 1))); }
+}
+
+/* Jelly — cartoon squash & stretch wobble */
+.lens-image-wrapper[data-lens-effect="jelly"]:hover img,
+.lens-image-wrapper[data-lens-effect="jelly"]:hover > :not(canvas):not(.lens-reveal-img) {
+  animation: lens-jelly 0.8s ease both;
+}
+@keyframes lens-jelly {
+  0%, 100% { transform: scale(1, 1); }
+  25% { transform: scale(calc(1 + 0.08 * var(--lens-intensity, 1)), calc(1 - 0.06 * var(--lens-intensity, 1))); }
+  50% { transform: scale(calc(1 - 0.05 * var(--lens-intensity, 1)), calc(1 + 0.06 * var(--lens-intensity, 1))); }
+  75% { transform: scale(calc(1 + 0.03 * var(--lens-intensity, 1)), calc(1 - 0.02 * var(--lens-intensity, 1))); }
+}
+
+/* Float — gentle continuous levitation while hovered */
+.lens-image-wrapper[data-lens-effect="float"]:hover img,
+.lens-image-wrapper[data-lens-effect="float"]:hover > :not(canvas):not(.lens-reveal-img) {
+  animation: lens-float 3s ease-in-out infinite;
+}
+@keyframes lens-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(-8px * var(--lens-intensity, 1))); }
+}
+
+/* Sway — slow pendulum swing from the top edge */
+.lens-image-wrapper[data-lens-effect="sway"]:hover img,
+.lens-image-wrapper[data-lens-effect="sway"]:hover > :not(canvas):not(.lens-reveal-img) {
+  transform-origin: top center;
+  animation: lens-sway 2.2s ease-in-out infinite;
+}
+@keyframes lens-sway {
+  0%, 100% { transform: rotate(calc(2.5deg * var(--lens-intensity, 1))); }
+  50% { transform: rotate(calc(-2.5deg * var(--lens-intensity, 1))); }
+}
+
+/* Press — tactile push-down, like a physical button */
+.lens-image-wrapper[data-lens-effect="press"]:hover {
+  transform: translateY(calc(2px * var(--lens-intensity, 1))) scale(calc(1 - 0.03 * var(--lens-intensity, 1)));
+  filter: brightness(0.96);
+}
+
+/* Squeeze — horizontal stretch, vertical squash */
+.lens-image-wrapper[data-lens-effect="squeeze"]:hover img,
+.lens-image-wrapper[data-lens-effect="squeeze"]:hover > :not(canvas):not(.lens-reveal-img) {
+  transform: scale(calc(1 + 0.06 * var(--lens-intensity, 1)), calc(1 - 0.06 * var(--lens-intensity, 1)));
+}
+
+/* Rotate — playful tilt with a slight zoom */
+.lens-image-wrapper[data-lens-effect="rotate"]:hover img,
+.lens-image-wrapper[data-lens-effect="rotate"]:hover > :not(canvas):not(.lens-reveal-img) {
+  transform: rotate(calc(3deg * var(--lens-intensity, 1))) scale(1.04);
+}
+
+/* Pulse Glow — breathing colored glow ring.
+   Override --lens-glow-rgb (space-separated RGB) to change the color. */
+.lens-image-wrapper[data-lens-effect="pulse-glow"] {
+  border-radius: 12px;
+}
+.lens-image-wrapper[data-lens-effect="pulse-glow"]:hover {
+  animation: lens-pulse-glow 1.6s ease-in-out infinite;
+}
+@keyframes lens-pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px 0 rgb(var(--lens-glow-rgb, 192 132 252) / 0.35); }
+  50% { box-shadow: 0 0 calc(26px * var(--lens-intensity, 1)) calc(4px * var(--lens-intensity, 1)) rgb(var(--lens-glow-rgb, 192 132 252) / 0.7); }
+}
+
+/* Gradient Border — animated conic-gradient ring drawn inside the wrapper */
+@property --lens-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.lens-image-wrapper[data-lens-effect="gradient-border"] {
+  position: relative;
+  border-radius: 14px;
+}
+.lens-image-wrapper[data-lens-effect="gradient-border"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(from var(--lens-angle, 0deg), #c084fc, #38bdf8, #f43f5e, #c084fc);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.lens-image-wrapper[data-lens-effect="gradient-border"]:hover::after {
+  opacity: 1;
+  animation: lens-gradient-spin 3s linear infinite;
+}
+@keyframes lens-gradient-spin {
+  to { --lens-angle: 360deg; }
+}
+
+/* Color Pop — grayscale at rest, colors bloom back on hover */
+.lens-image-wrapper[data-lens-effect="color-pop"] img,
+.lens-image-wrapper[data-lens-effect="color-pop"] > :not(canvas):not(.lens-reveal-img) {
+  filter: grayscale(1);
+}
+.lens-image-wrapper[data-lens-effect="color-pop"]:hover img,
+.lens-image-wrapper[data-lens-effect="color-pop"]:hover > :not(canvas):not(.lens-reveal-img) {
+  filter: grayscale(0) saturate(calc(1 + 0.35 * var(--lens-intensity, 1)));
+  transform: scale(1.02);
+}
+
+/* Blur Focus — soft-focus at rest, snaps sharp on hover */
+.lens-image-wrapper[data-lens-effect="blur-focus"] img,
+.lens-image-wrapper[data-lens-effect="blur-focus"] > :not(canvas):not(.lens-reveal-img) {
+  filter: blur(calc(5px * var(--lens-intensity, 1)));
+}
+.lens-image-wrapper[data-lens-effect="blur-focus"]:hover img,
+.lens-image-wrapper[data-lens-effect="blur-focus"]:hover > :not(canvas):not(.lens-reveal-img) {
+  filter: blur(0);
+  transform: scale(1.02);
+}
+
+/* Hue Cycle — colors rotate through the full spectrum while hovered */
+.lens-image-wrapper[data-lens-effect="hue-cycle"]:hover img,
+.lens-image-wrapper[data-lens-effect="hue-cycle"]:hover > :not(canvas):not(.lens-reveal-img) {
+  animation: lens-hue-cycle 2.5s linear infinite;
+}
+@keyframes lens-hue-cycle {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
 }
 
 /* Neon (border glow) effect */

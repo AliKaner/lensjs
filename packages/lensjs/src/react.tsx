@@ -50,6 +50,9 @@ export interface LensImageProps extends Omit<React.HTMLAttributes<HTMLDivElement
 
 export interface LensConfig {
   intensity?: number;
+  /** Default color grade for every LensImage under the provider — ideal for
+      theme switching: change it once and every wrapped element re-grades. */
+  filter?: LensFilter;
   filterIntensity?: number;
   lensSize?: number;
   lensShape?: 'circle' | 'square';
@@ -204,6 +207,7 @@ export function LensImage({
 }: LensImageProps) {
   const globalConfig = useLensConfig();
 
+  const activeFilter = filter ?? globalConfig.filter;
   const activeIntensity = intensity ?? globalConfig.intensity ?? 1;
   const activeFilterIntensity = filterIntensity ?? globalConfig.filterIntensity ?? 1;
   const activeLensSize = lensSize ?? globalConfig.lensSize;
@@ -257,7 +261,7 @@ export function LensImage({
       ref={wrapperRef}
       className={`lens-image-wrapper ${children ? className || '' : ''}`}
       data-lens-effect={effect}
-      data-lens-filter={filter}
+      data-lens-filter={activeFilter}
       data-lens-shape={activeLensShape}
       onMouseMove={handleMouseMove}
       onTouchStart={handleTouch}

@@ -28,7 +28,20 @@ export type LensEffect =
   | 'ken-burns'
   | 'scanlines'
   | 'shadow'
-  | 'heart-beat';
+  | 'heart-beat'
+  | 'pop'
+  | 'shake'
+  | 'jelly'
+  | 'float'
+  | 'sway'
+  | 'press'
+  | 'squeeze'
+  | 'rotate'
+  | 'pulse-glow'
+  | 'gradient-border'
+  | 'color-pop'
+  | 'blur-focus'
+  | 'hue-cycle';
 
 /** Movie-inspired color grading presets, applied via the `filter` prop. */
 export type LensFilter =
